@@ -1,0 +1,112 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  --color-mood-primary: var(--color-mood-primary);
+  --color-mood-secondary: var(--color-mood-secondary);
+  --color-mood-accent: var(--color-mood-accent);
+  --color-mood-light: var(--color-mood-light);
+  --color-mood-surface: var(--color-mood-surface);
+  --color-mood-text: var(--color-mood-text);
+  --color-mood-success: var(--color-mood-success);
+  --font-sans: var(--font-raleway), sans-serif;
+  --font-raleway: var(--font-raleway), sans-serif;
+}
+
+:root {
+  --foreground: #171717;
+  --color-mood-primary: #7f1d1d;
+  --color-mood-secondary: #991b1b;
+  --color-mood-accent: #dc2626;
+  --color-mood-light: #fef2f2;
+  --color-mood-surface: #ffffff;
+  --color-mood-text: #1e293b;
+  --color-mood-success: #059669;
+}
+
+img {
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  -webkit-user-drag: none;
+  -khtml-user-drag: none;
+  -moz-user-drag: none;
+  -o-user-drag: none;
+}
+@layer base {
+  html {
+    background: var(--background);
+    color: var(--foreground);
+    transition: all 0.5s ease-in-out;
+  }
+
+  html.dark {
+    --background: #0a0a0a;
+    --foreground: #ededed;
+    --color-mood-primary: #dc2626;
+    --color-mood-secondary: #ef4444;
+    --color-mood-light: #1a1a1a;
+    --color-mood-surface: #262626;
+    --color-mood-text: #f5f5f5;
+  }
+
+  body {
+    background: var(--background);
+    color: var(--foreground);
+    transition: inherit;
+  }
+
+  * {
+    transition: background-color 0.5s ease-in-out, color 0.5s ease-in-out,
+      border-color 0.5s ease-in-out, transform 0.3s ease-in-out;
+  }
+}
+
+@keyframes float {
+  0%,
+  100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-float {
+  animation: float 3s ease-in-out infinite;
+}
+
+.animate-fade-in-up {
+  animation: fade-in-up 0.8s ease-out;
+}
+
+@layer components {
+  .theme-transition {
+    transition: all 0.5s ease-in-out;
+  }
+
+  .glass-effect {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+  }
+
+  .glass-effect-dark {
+    background: rgba(0, 0, 0, 0.2);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+}

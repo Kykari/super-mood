@@ -18,7 +18,7 @@ s3 = boto3.client(
 )
 
 BUCKET = os.getenv("MINIO_BUCKET", "mood-photos")
-PUBLIC_URL = os.getenv("MINIO_PUBLIC_URL", "http://62.113.44.151:9000").rstrip("/")
+PUBLIC_URL = os.getenv("MINIO_PUBLIC_URL", "http://localhost:9000").rstrip("/")
 
 
 async def upload_photo_to_minio(photo: UploadFile | None = None, user_id: int | None = None) -> str | None:

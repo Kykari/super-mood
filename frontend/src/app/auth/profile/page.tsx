@@ -4,11 +4,14 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 import toast from "react-hot-toast";
+import BackToHome from "../../components/BackToHome";
 
 interface UserData {
+  id: number;
   username: string;
   email: string;
   bio: string | null;
+  avatar_url: string | null;
 }
 
 export default function ProfilePage() {
@@ -18,21 +21,20 @@ export default function ProfilePage() {
   const [originalUser, setOriginalUser] = useState<UserData | null>(null);
   const [isEditing, setIsEditing] = useState(false);
   const [activeTab, setActiveTab] = useState<"profile" | "password" | "danger">(
-    "profile"
+    "profile",
   );
   const [loading, setLoading] = useState(true);
+  const [uploadingAvatar, setUploadingAvatar] = useState(false);
 
-  // Загрузка профиля при входе
+  // Загрузка профиля
   useEffect(() => {
     const loadProfile = async () => {
       try {
         const res = await fetch(
-          `${
-            process.env.NEXT_PUBLIC_API_URL || "http://localhost:8001"
-          }/auth/profile`,
+          `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:8001"}/auth/profile`,
           {
             credentials: "include",
-          }
+          },
         );
 
         if (!res.ok) {
@@ -42,9 +44,11 @@ export default function ProfilePage() {
 
         const data = await res.json();
         const userData = {
+          id: data.id,
           username: data.username,
           email: data.email,
           bio: data.bio || "",
+          avatar_url: data.avatar_url || null,
         };
         setUser(userData);
         setOriginalUser(userData);
@@ -65,15 +69,17 @@ export default function ProfilePage() {
 
     try {
       const res = await fetch(
-        `${
-          process.env.NEXT_PUBLIC_API_URL || "http://localhost:8001"
-        }/auth/profile`,
+        `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:8001"}/auth/profile`,
         {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
           credentials: "include",
-          body: JSON.stringify(user),
-        }
+          body: JSON.stringify({
+            username: user.username,
+            email: user.email,
+            bio: user.bio,
+          }),
+        },
       );
 
       if (!res.ok) {
@@ -94,6 +100,75 @@ export default function ProfilePage() {
     setIsEditing(false);
   };
 
+  // Загрузка аватарки
+  const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error("Файл не должен превышать 5MB");
+      return;
+    }
+
+    if (!file.type.startsWith("image/")) {
+      toast.error("Можно загружать только изображения");
+      return;
+    }
+
+    setUploadingAvatar(true);
+    const formData = new FormData();
+    formData.append("file", file);
+
+    try {
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:8001"}/profile/upload-avatar`,
+        {
+          method: "POST",
+          credentials: "include",
+          body: formData,
+        },
+      );
+
+      if (!res.ok) {
+        const error = await res.json();
+        throw new Error(error.detail || "Ошибка загрузки");
+      }
+
+      const data = await res.json();
+      setUser((prev) =>
+        prev ? { ...prev, avatar_url: data.avatar_url } : null,
+      );
+      toast.success("Аватар обновлён");
+    } catch (error: any) {
+      toast.error(error.message || "Ошибка при загрузке");
+    } finally {
+      setUploadingAvatar(false);
+    }
+  };
+
+  // Удаление аватарки
+  const handleAvatarDelete = async () => {
+    try {
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:8001"}/profile/delete-avatar`,
+        {
+          method: "DELETE",
+          credentials: "include",
+        },
+      );
+
+      if (!res.ok) {
+        const error = await res.json();
+        throw new Error(error.detail || "Ошибка удаления");
+      }
+
+      setUser((prev) => (prev ? { ...prev, avatar_url: null } : null));
+      toast.success("Аватар удалён");
+    } catch (error: any) {
+      toast.error(error.message || "Ошибка при удалении");
+    }
+  };
+
   // Смена пароля
   const handleChangePassword = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -111,21 +186,20 @@ export default function ProfilePage() {
 
     try {
       const res = await fetch(
-        `${
-          process.env.NEXT_PUBLIC_API_URL || "http://localhost:8001"
-        }/auth/change-password`,
+        `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:8001"}/auth/change-password`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           credentials: "include",
           body: JSON.stringify(data),
-        }
+        },
       );
 
       const result = await res.json();
       if (!res.ok) throw new Error(result.detail || "Ошибка смены пароля");
 
       toast.success("Пароль успешно изменён!");
+      (e.target as HTMLFormElement).reset();
     } catch (err: any) {
       toast.error(err.message);
     }
@@ -133,23 +207,26 @@ export default function ProfilePage() {
 
   // Удаление аккаунта
   const handleDeleteAccount = async () => {
-    if (!confirm("Ты уверена? Это действие нельзя отменить!")) return;
+    if (!confirm("Ты уверен? Это действие нельзя отменить!")) return;
 
     try {
       const res = await fetch(
-        `${
-          process.env.NEXT_PUBLIC_API_URL || "http://localhost:8001"
-        }/auth/delete-account`,
+        `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:8001"}/auth/delete-account`,
         {
           method: "DELETE",
           credentials: "include",
-        }
+        },
       );
 
       if (!res.ok) throw new Error("Не удалось удалить аккаунт");
 
       toast.success("Аккаунт удалён");
-      document.cookie = "access_token=; Max-Age=0; path=/;";
+      document.cookie.split(";").forEach((cookie) => {
+        const [name] = cookie.split("=");
+        if (name && name.trim()) {
+          document.cookie = `${name.trim()}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
+        }
+      });
       router.push("/");
     } catch (err: any) {
       toast.error(err.message);
@@ -158,8 +235,8 @@ export default function ProfilePage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center text-2xl">
-        Загрузка профиля...
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#7F1D1D]"></div>
       </div>
     );
   }
@@ -189,9 +266,10 @@ export default function ProfilePage() {
 
   return (
     <main className="bg-gradient-to-br from-white via-gray-50 to-gray-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 min-h-screen">
-      <div className="container mx-auto px-6 sm:px-8 lg:px-12 py-32">
+      <div className="container mx-auto px-6 sm:px-8 lg:px-12 pt-8 pb-12">
+        <BackToHome />
         <div className="max-w-4xl mx-auto">
-          <div className="text-center mb-12">
+          <div className="text-center mb-8">
             <h1 className="text-4xl sm:text-5xl font-black mb-4">
               <span className="bg-gradient-to-r from-[#7F1D1D] to-[#DC2626] bg-clip-text text-transparent">
                 ПРОФИЛЬ
@@ -215,8 +293,8 @@ export default function ProfilePage() {
                               ? "bg-[#7F1D1D] text-white shadow-lg"
                               : "bg-gradient-to-r from-[#7F1D1D] to-[#DC2626] text-white shadow-lg"
                             : item.id === "danger"
-                            ? "text-[#7F1D1D] hover:bg-red-50 dark:hover:bg-red-900/20"
-                            : "text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+                              ? "text-[#7F1D1D] hover:bg-red-50 dark:hover:bg-red-900/20"
+                              : "text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
                         }`}
                     >
                       <Image
@@ -242,13 +320,66 @@ export default function ProfilePage() {
               {activeTab === "profile" && (
                 <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-3xl p-8 shadow-2xl border border-gray-100 dark:border-gray-700">
                   <div className="space-y-8">
-                    {/* Аватарка (пока заглушка) */}
-                    <div className="flex justify-center">
-                      <div className="w-32 h-32 rounded-3xl bg-gray-200 dark:bg-gray-700 border-4 border-dashed border-gray-400 flex items-center justify-center">
-                        <span className="text-4xl text-gray-500">
-                          {user.username[0].toUpperCase()}
-                        </span>
+                    {/* Аватарка */}
+                    <div className="flex flex-col items-center gap-4">
+                      <div className="relative">
+                        <div className="w-32 h-32 rounded-3xl bg-gradient-to-r from-[#7F1D1D] to-[#DC2626] p-1">
+                          <div className="w-full h-full rounded-2xl bg-white dark:bg-gray-800 flex items-center justify-center overflow-hidden">
+                            {user.avatar_url ? (
+                              <img
+                                src={user.avatar_url}
+                                alt={user.username}
+                                className="w-full h-full object-cover"
+                              />
+                            ) : (
+                              <span className="text-5xl font-bold text-[#7F1D1D] dark:text-[#f87171]">
+                                {user.username[0].toUpperCase()}
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                        <label className="absolute -bottom-2 -right-2 cursor-pointer">
+                          <div className="bg-gradient-to-r from-[#7F1D1D] to-[#DC2626] p-2 rounded-full shadow-lg hover:scale-110 transition-transform">
+                            <svg
+                              className="w-4 h-4 text-white"
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"
+                              />
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"
+                              />
+                            </svg>
+                          </div>
+                          <input
+                            type="file"
+                            accept="image/*"
+                            onChange={handleAvatarUpload}
+                            className="hidden"
+                            disabled={uploadingAvatar}
+                          />
+                        </label>
                       </div>
+                      {uploadingAvatar && (
+                        <p className="text-sm text-gray-500">Загрузка...</p>
+                      )}
+                      {user.avatar_url && (
+                        <button
+                          onClick={handleAvatarDelete}
+                          className="text-sm text-red-500 hover:text-red-700 transition-colors"
+                        >
+                          Удалить аватар
+                        </button>
+                      )}
                     </div>
 
                     <div className="space-y-6">
@@ -352,29 +483,41 @@ export default function ProfilePage() {
                     onSubmit={handleChangePassword}
                     className="space-y-6 max-w-md"
                   >
-                    <input
-                      name="current"
-                      type="password"
-                      placeholder="Текущий пароль"
-                      required
-                      className="w-full px-4 py-3 rounded-2xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 focus:ring-2 focus:ring-[#7F1D1D] focus:outline-none"
-                    />
-                    <input
-                      name="new"
-                      type="password"
-                      placeholder="Новый пароль"
-                      required
-                      minLength={8}
-                      className="w-full px-4 py-3 rounded-2xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 focus:ring-2 focus:ring-[#7F1D1D] focus:outline-none"
-                    />
-                    <input
-                      name="confirm"
-                      type="password"
-                      placeholder="Подтвердите новый пароль"
-                      required
-                      minLength={8}
-                      className="w-full px-4 py-3 rounded-2xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 focus:ring-2 focus:ring-[#7F1D1D] focus:outline-none"
-                    />
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                        Текущий пароль
+                      </label>
+                      <input
+                        name="current"
+                        type="password"
+                        required
+                        className="w-full px-4 py-3 rounded-2xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 focus:ring-2 focus:ring-[#7F1D1D] focus:outline-none"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                        Новый пароль
+                      </label>
+                      <input
+                        name="new"
+                        type="password"
+                        required
+                        minLength={6}
+                        className="w-full px-4 py-3 rounded-2xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 focus:ring-2 focus:ring-[#7F1D1D] focus:outline-none"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                        Подтвердите новый пароль
+                      </label>
+                      <input
+                        name="confirm"
+                        type="password"
+                        required
+                        minLength={6}
+                        className="w-full px-4 py-3 rounded-2xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 focus:ring-2 focus:ring-[#7F1D1D] focus:outline-none"
+                      />
+                    </div>
                     <button
                       type="submit"
                       className="w-full bg-gradient-to-r from-[#7F1D1D] to-[#DC2626] text-white py-4 rounded-2xl font-bold shadow-lg hover:shadow-xl transition-all duration-300"

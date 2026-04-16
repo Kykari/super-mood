@@ -47,6 +47,7 @@ services:
       - mood-network
 
   frontend:
+  
     build:
       context: ./frontend
       dockerfile: Dockerfile

@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
+import BackToHome from "../components/BackToHome";
 import {
   LineChart,
   Line,
@@ -105,7 +106,7 @@ const COLOR_PALETTE = [
 export default function AnalyticsPage() {
   const router = useRouter();
   const [analyticsData, setAnalyticsData] = useState<AnalyticsData | null>(
-    null
+    null,
   );
   const [activities, setActivities] = useState<Activity[]>([]);
   const [loading, setLoading] = useState(true);
@@ -124,13 +125,13 @@ export default function AnalyticsPage() {
           `${
             process.env.NEXT_PUBLIC_API_URL || "http://localhost:8001"
           }/activities`,
-          { credentials: "include" }
+          { credentials: "include" },
         ),
         fetch(
           `${
             process.env.NEXT_PUBLIC_API_URL || "http://localhost:8001"
           }/analytics`,
-          { credentials: "include" }
+          { credentials: "include" },
         ),
       ]);
 
@@ -149,7 +150,7 @@ export default function AnalyticsPage() {
     } finally {
       setLoading(false);
     }
-  };  
+  };
 
   const activityMap = Object.fromEntries(activities.map((a) => [a.id, a.name]));
 
@@ -188,7 +189,7 @@ export default function AnalyticsPage() {
     const sortedDates = entries
       .sort(
         ([dateA], [dateB]) =>
-          new Date(dateA).getTime() - new Date(dateB).getTime()
+          new Date(dateA).getTime() - new Date(dateB).getTime(),
       )
       .slice(-14);
 
@@ -197,7 +198,7 @@ export default function AnalyticsPage() {
       const moodEntries = Object.entries(moods);
       const totalMoodCount = moodEntries.reduce(
         (sum, [, count]) => sum + count,
-        0
+        0,
       );
       const avgMoodScore =
         moodEntries.reduce((sum, [mood, count]) => {
@@ -228,7 +229,7 @@ export default function AnalyticsPage() {
       ([weekday, moods]) => {
         const moodCount = Object.values(moods).reduce(
           (sum, count) => sum + count,
-          0
+          0,
         );
         return {
           day: weekdays[parseInt(weekday)],
@@ -238,7 +239,7 @@ export default function AnalyticsPage() {
             value: count,
           })),
         };
-      }
+      },
     );
   };
 
@@ -424,7 +425,7 @@ export default function AnalyticsPage() {
     subtitle?: string;
   }) => (
     <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-2xl p-6 shadow-xl border border-gray-100 dark:border-gray-700">
-      <div className="flex items-start justify-between mb-4">
+      <div className="flex items-start justify-between mb-2">
         <div>
           <p className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">
             {title}
@@ -454,7 +455,7 @@ export default function AnalyticsPage() {
   if (!analyticsData || analyticsData.summary.total_entries === 0) {
     return (
       <main className="min-h-screen bg-gradient-to-br from-white via-gray-50 to-gray-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
-        <div className="container mx-auto px-6 py-32">
+        <div className="container mx-auto px-6 py-8">
           <div className="max-w-4xl mx-auto text-center">
             <div className="text-6xl mb-6">📊</div>
             <h1 className="text-4xl font-bold mb-4 bg-gradient-to-r from-[#7F1D1D] to-[#DC2626] bg-clip-text text-transparent">
@@ -487,8 +488,8 @@ export default function AnalyticsPage() {
 
   return (
     <main className="min-h-screen bg-gradient-to-br from-white via-gray-50 to-gray-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
-      <div className="container mx-auto px-4 sm:px-6 py-8">
-        {/* Заголовок */}
+      <div className="container mx-auto px-4 sm:px-6 py-12">
+        <BackToHome />
         <div className="text-center mb-10">
           <h1 className="text-4xl sm:text-5xl font-black mb-4">
             <span className="bg-gradient-to-r from-[#7F1D1D] to-[#DC2626] bg-clip-text text-transparent">
@@ -549,7 +550,7 @@ export default function AnalyticsPage() {
           <StatCard
             title="Ведем с"
             value={new Date(
-              analyticsData.summary.first_entry
+              analyticsData.summary.first_entry,
             ).toLocaleDateString("ru-RU")}
             icon="📅"
             color="#B91C1C"

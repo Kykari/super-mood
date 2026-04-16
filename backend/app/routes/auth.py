@@ -1,4 +1,3 @@
-# backend/app/routes/auth.py
 from fastapi import APIRouter, Depends, HTTPException, Response, status
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -34,7 +33,11 @@ async def authenticate_user(db: AsyncSession, username: str, password: str):
     return user
 
 @router.post("/register", response_model=UserOut, status_code=201)
-async def register(user_data: UserCreate, db: AsyncSession = Depends(get_db)):
+async def register(
+    user_data: UserCreate, 
+    response: Response,
+    db: AsyncSession = Depends(get_db)
+):
     result_email = await db.execute(select(User).where(User.email == user_data.email))
     if result_email.scalar_one_or_none():
         raise HTTPException(status_code=400, detail="Email уже занят")
@@ -52,6 +55,24 @@ async def register(user_data: UserCreate, db: AsyncSession = Depends(get_db)):
     db.add(new_user)
     await db.commit()
     await db.refresh(new_user)
+    
+    # Автоматический логин после регистрации
+    payload = {
+        "sub": str(new_user.id),
+        "exp": datetime.utcnow() + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    }
+    token = jwt.encode(payload, SECRET_KEY, algorithm=ALGORITHM)
+    
+    response.set_cookie(
+        key="access_token",
+        value=f"Bearer {token}",
+        httponly=True,
+        secure=False,
+        samesite="lax",
+        max_age=ACCESS_TOKEN_EXPIRE_MINUTES * 60,
+        path="/"
+    )
+    
     return new_user
 
 @router.post("/login")
@@ -129,7 +150,6 @@ async def change_password(
     await db.commit()
     return {"detail": "Пароль успешно изменён"}
 
-# 3. Удаление аккаунта
 @router.delete("/delete-account")
 async def delete_account(
     current_user: User = Depends(get_current_user),

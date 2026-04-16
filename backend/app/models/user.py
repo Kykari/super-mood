@@ -42,10 +42,11 @@ class User(Base):
     )
 
     bio = Column(String, nullable=True, default=None)
+    avatar_url = Column(String(500), nullable=True, default=None)  # <-- ДОБАВИТЬ ЭТУ СТРОКУ
+    
     stories: Mapped[list[MoodStory]] = relationship("MoodStory", back_populates="user", cascade="all, delete-orphan")
+    
     def __repr__(self) -> str:
         return f"<User {self.username} ({self.role})>"
     
-
     analytics = relationship("UserAnalytics", uselist=False, cascade="all, delete-orphan")
-    

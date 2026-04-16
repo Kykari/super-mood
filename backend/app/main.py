@@ -6,6 +6,7 @@ from routes.story import router as story_router
 from routes.analytics import router as analytics_router
 from routes.consultation import router as consultation_router
 from routes.activity import router as activity_router
+from routes import profile
 
 from database import init_db
 
@@ -34,6 +35,7 @@ app.include_router(story_router)
 app.include_router(analytics_router)
 app.include_router(consultation_router)
 app.include_router(activity_router)
+app.include_router(profile.router)
 
 
 @app.on_event("startup")

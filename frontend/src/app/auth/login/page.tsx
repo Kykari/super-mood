@@ -45,7 +45,6 @@ export default function Login() {
 
       toast.success("Добро пожаловать обратно!");
 
-      // ПЕРЕНАПРАВЛЕНИЕ НА ГЛАВНУЮ
       setTimeout(() => {
         router.push("/home");
       }, 1000);

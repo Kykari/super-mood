@@ -55,7 +55,7 @@ export default function Register() {
             email: formData.email,
             password: formData.password,
           }),
-        }
+        },
       );
 
       if (!res.ok) {
@@ -69,9 +69,8 @@ export default function Register() {
 
       toast.success("Аккаунт создан! Добро пожаловать!");
 
-      // ПЕРЕНАПРАВЛЕНИЕ НА ГЛАВНУЮ
       setTimeout(() => {
-        router.push("/");
+        router.push("/home");
       }, 1000);
     } catch (err: any) {
       console.error("Ошибка регистрации:", err);
@@ -91,7 +90,6 @@ export default function Register() {
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <section className="min-h-screen flex items-center justify-center py-6 sm:py-8">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 xl:gap-16 items-center max-w-6xl w-full">
-            {/* Изображение таксы */}
             <div className="order-2 lg:order-1">
               <div className="relative mx-auto max-w-[280px] sm:max-w-[320px] lg:max-w-full">
                 <Image
@@ -105,7 +103,6 @@ export default function Register() {
               </div>
             </div>
 
-            {/* Форма регистрации */}
             <div className="order-1 lg:order-2">
               <div className="text-center mb-6 sm:mb-8">
                 <Link href="/" className="inline-block mb-2">

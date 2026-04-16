@@ -13,7 +13,8 @@ class UserOut(BaseModel):
     username: str
     role: str
     created_at: datetime
-    bio: Optional[str] = None  # ← Добавили!
+    bio: Optional[str] = None
+    avatar_url: Optional[str] = None  # <-- ДОБАВИТЬ
 
     class Config:
         from_attributes = True

@@ -56,22 +56,13 @@ class MoodStory(Base):
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"))
-
-    # Список выбранных эмоций (строки из PlutchikMood)
     moods: Mapped[list[str]] = mapped_column(JSON, nullable=False)
-
-    # Теперь храним только ID активностей — чисто, безопасно, по-взрослому
-    # Пример: [{"activity_id": 5}, {"activity_id": 12}]
     activities: Mapped[list[dict]] = mapped_column(JSON, nullable=False, server_default="[]")
-
     text: Mapped[str | None] = mapped_column(Text, nullable=True)
     photo_urls: Mapped[list[str] | None] = mapped_column(JSON, nullable=True, server_default="[]")
-
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), index=True
     )
-
-    # Связи
     user = relationship("User", back_populates="stories")
 
     def __repr__(self) -> str:

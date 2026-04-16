@@ -3,7 +3,7 @@ import Link from "next/link";
 export default function Feedback() {
   return (
     <main className="bg-gradient-to-br from-white via-gray-50 to-gray-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 theme-transition min-h-screen">
-      <div className="container mx-auto px-6 sm:px-8 lg:px-20 py-24">
+      <div className="container mx-auto px-6 sm:px-8 lg:px-20 py-8">
         <section className="text-center mb-12">
           <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black leading-tight mb-4">
             <span className="bg-gradient-to-r from-[#7F1D1D] to-[#DC2626] bg-clip-text text-transparent">

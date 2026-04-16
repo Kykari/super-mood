@@ -5,6 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
+import BackToHome from "../components/BackToHome";
 
 interface Activity {
   id: number;
@@ -181,13 +182,13 @@ export default function HistoryPage() {
           `${
             process.env.NEXT_PUBLIC_API_URL || "http://localhost:8001"
           }/activities`,
-          { credentials: "include" }
+          { credentials: "include" },
         ),
         fetch(
           `${
             process.env.NEXT_PUBLIC_API_URL || "http://localhost:8001"
           }/stories`,
-          { credentials: "include" }
+          { credentials: "include" },
         ),
       ]);
 
@@ -259,7 +260,7 @@ export default function HistoryPage() {
 
       if (editData.photoUrls.length > 0 && editData.photosToDelete.length > 0) {
         const photosToKeep = editData.photoUrls.filter(
-          (url) => !editData.photosToDelete.includes(url)
+          (url) => !editData.photosToDelete.includes(url),
         );
         if (photosToKeep.length > 0) {
           formData.append("photos_to_keep", photosToKeep.join(","));
@@ -282,7 +283,7 @@ export default function HistoryPage() {
           method: "PUT",
           credentials: "include",
           body: formData,
-        }
+        },
       );
 
       if (!res.ok) {
@@ -312,7 +313,7 @@ export default function HistoryPage() {
         {
           method: "DELETE",
           credentials: "include",
-        }
+        },
       );
 
       if (res.ok) {
@@ -438,7 +439,8 @@ export default function HistoryPage() {
 
   return (
     <main className="min-h-screen bg-gradient-to-br from-white via-gray-50 to-gray-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
-      <div className="container mx-auto px-6 py-32">
+      <div className="container mx-auto px-6 py-8">
+        <BackToHome />
         <div className="max-w-4xl mx-auto">
           <div className="text-center mb-12">
             <h1 className="text-4xl sm:text-5xl font-black mb-4">

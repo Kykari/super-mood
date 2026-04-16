@@ -14,19 +14,10 @@ export default function LayoutClient({
   const pathname = usePathname();
   const router = useRouter();
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
-  const [loading, setLoading] = useState(true);
 
   const noLayoutPages = ["/auth/login", "/auth/register", "/admin"];
   const shouldHideLayout = noLayoutPages.includes(pathname);
-
-  // Страницы, требующие аутентификации
-  const protectedPages = [
-    "/",
-    "/stories",
-    "/stories/create",
-    "/analytics",
-    "/profile",
-  ];
+  const showHeader = !shouldHideLayout;
 
   useEffect(() => {
     checkAuth();
@@ -34,51 +25,36 @@ export default function LayoutClient({
 
   const checkAuth = async () => {
     try {
-      // Проверка аутентификации (~строка 33):
       const res = await fetch(
-        `${
-          process.env.NEXT_PUBLIC_API_URL || "http://localhost:8001"
-        }/auth/profile`,
+        `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:8001"}/auth/profile`,
         {
           credentials: "include",
-          cache: "no-store", // Важно!
-        }
+          cache: "no-store",
+        },
       );
 
-      if (res.ok) {
-        setIsAuthenticated(true);
-      } else {
-        setIsAuthenticated(false);
+      const authenticated = res.ok;
+      setIsAuthenticated(authenticated);
 
-        // Если пользователь не авторизован и пытается зайти на защищенную страницу
-        if (protectedPages.includes(pathname)) {
-          router.push("/auth/login");
-        }
+      const protectedPages = ["/home", "/stories", "/analytics", "/profile"];
+      if (!authenticated && protectedPages.includes(pathname)) {
+        router.push("/auth/login");
       }
     } catch (error) {
       console.error("Auth check error:", error);
       setIsAuthenticated(false);
-
-      if (protectedPages.includes(pathname)) {
-        router.push("/auth/login");
-      }
-    } finally {
-      setLoading(false);
     }
   };
 
-  // Показываем лоадер во время проверки
-  if (loading && protectedPages.includes(pathname)) {
+  if (
+    isAuthenticated === null &&
+    ["/home", "/stories", "/analytics", "/profile"].includes(pathname)
+  ) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#7F1D1D]"></div>
       </div>
     );
-  }
-
-  // Если не авторизован и на защищенной странице - ничего не показываем (будет редирект)
-  if (!isAuthenticated && protectedPages.includes(pathname)) {
-    return null;
   }
 
   return (
@@ -88,15 +64,10 @@ export default function LayoutClient({
       ) : (
         <>
           <Header />
-          <main className="pt-16">
-            {" "}
-            {/* Добавлен отступ для хедера */}
-            {children}
-          </main>
+          <main>{children}</main>
           <Footer />
         </>
       )}
-
       <Toaster
         position="top-center"
         toastOptions={{

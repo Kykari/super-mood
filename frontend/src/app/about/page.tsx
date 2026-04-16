@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import BackToHome from "../components/BackToHome";
 
 export default function About() {
   const techStack = [
@@ -44,7 +45,8 @@ export default function About() {
 
   return (
     <main className="bg-gradient-to-br from-white via-gray-50 to-gray-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 theme-transition min-h-screen">
-      <div className="container mx-auto px-6 sm:px-8 lg:px-20 py-25">
+      <div className="container mx-auto px-6 sm:px-8 lg:px-20 py-8">
+        <BackToHome />
         <section className="text-center mb-20">
           <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black leading-tight mb-6">
             <span className="bg-gradient-to-r from-[#7F1D1D] to-[#DC2626] bg-clip-text text-transparent">

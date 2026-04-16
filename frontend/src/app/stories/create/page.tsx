@@ -5,6 +5,7 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 import EmotionWheel from "../../components/EmotionWheel";
+import BackToHome from "../../components/BackToHome";
 
 interface Activity {
   id: number;
@@ -90,7 +91,7 @@ export default function CreateEntry() {
       `${
         process.env.NEXT_PUBLIC_API_URL || "http://localhost:8001"
       }/activities`,
-      { credentials: "include" }
+      { credentials: "include" },
     )
       .then((r) => r.json())
       .then((data) => {
@@ -108,14 +109,14 @@ export default function CreateEntry() {
       prev.includes(emotion)
         ? prev.filter((e) => e !== emotion)
         : prev.length < 3
-        ? [...prev, emotion]
-        : prev
+          ? [...prev, emotion]
+          : prev,
     );
   };
 
   const toggleActivity = (id: number) => {
     setSelectedActivities((prev) =>
-      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
+      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id],
     );
   };
 
@@ -162,7 +163,7 @@ export default function CreateEntry() {
           method: "POST",
           credentials: "include",
           body: formData,
-        }
+        },
       );
 
       if (!res.ok) {
@@ -194,10 +195,11 @@ export default function CreateEntry() {
     );
 
   return (
-    <main className="min-h-screen bg-gradient-to-br from-white to-gray-50 dark:from-gray-900 dark:to-black py-12">
+    <main className="min-h-screen bg-gradient-to-br from-white to-gray-50 dark:from-gray-900 dark:to-black py-8">
+      <BackToHome/>
       <div className="max-w-4xl mx-auto px-6">
         {/* Прогресс */}
-        <div className="mb-10">
+        <div className="mb-5">
           <div className="bg-gray-200 dark:bg-gray-700 h-3 rounded-full overflow-hidden">
             <div
               className="h-full bg-gradient-to-r from-red-700 to-red-500 transition-all duration-500"

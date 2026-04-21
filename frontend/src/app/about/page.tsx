@@ -1,25 +1,26 @@
 import Image from "next/image";
 import Link from "next/link";
 import BackToHome from "../components/BackToHome";
+import { Zap, Palette, Code, Heart } from "lucide-react";
 
 export default function About() {
   const techStack = [
     {
       name: "Next.js",
       description: "React-фреймворк для производства",
-      icon: "⚡",
+      icon: Zap,
       color: "from-blue-500 to-blue-700",
     },
     {
       name: "Tailwind CSS",
       description: "Утилитарный CSS-фреймворк",
-      icon: "🎨",
+      icon: Palette,
       color: "from-cyan-500 to-teal-500",
     },
     {
       name: "Python",
       description: "Язык для анализа данных и бэкенда",
-      icon: "🐍",
+      icon: Code,
       color: "from-yellow-500 to-amber-600",
     },
   ];
@@ -93,7 +94,7 @@ export default function About() {
                 alt="Концепция SuperMood"
                 width={500}
                 height={500}
-                className="rounded-3xl w-full h-auto shadow-2xl"
+                className=" w-full h-auto"
               />
             </div>
           </div>
@@ -157,7 +158,7 @@ export default function About() {
                 <div
                   className={`w-16 h-16 bg-gradient-to-r ${tech.color} rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300 shadow-lg`}
                 >
-                  <span className="text-2xl">{tech.icon}</span>
+                  <tech.icon className="w-8 h-8 text-white" />
                 </div>
                 <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-3">
                   {tech.name}
@@ -180,9 +181,11 @@ export default function About() {
               персонализированных рекомендаций.
             </p>
           </div>
-          <div className="text-center mt-8 ">
-            <p className="text-gray-500 dark:text-gray-400">
-              С любовью к вашему ментальному здоровью ❤️
+          <div className="text-center mt-8">
+            <p className="inline-flex items-center gap-2 text-gray-500 dark:text-gray-400">
+              <Heart className="w-4 h-4 text-red-500" />
+              С любовью к вашему ментальному здоровью
+              <Heart className="w-4 h-4 text-red-500" />
             </p>
           </div>
         </section>

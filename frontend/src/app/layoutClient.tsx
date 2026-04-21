@@ -4,6 +4,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import Header from "./components/header";
 import Footer from "./components/footer";
+import MobileBottomNav from "./components/MobileBottomNav";
 import { Toaster } from "react-hot-toast";
 
 export default function LayoutClient({
@@ -14,10 +15,19 @@ export default function LayoutClient({
   const pathname = usePathname();
   const router = useRouter();
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
 
   const noLayoutPages = ["/auth/login", "/auth/register", "/admin"];
   const shouldHideLayout = noLayoutPages.includes(pathname);
-  const showHeader = !shouldHideLayout;
 
   useEffect(() => {
     checkAuth();
@@ -57,6 +67,31 @@ export default function LayoutClient({
     );
   }
 
+  // На мобилках скрываем хедер и футер, показываем только нижнее меню
+  if (isMobile && !shouldHideLayout) {
+    return (
+      <>
+        <main className="pb-20">{children}</main>
+        <MobileBottomNav />
+        <Toaster
+          position="top-center"
+          toastOptions={{
+            duration: 5000,
+            style: {
+              background: "rgb(31 41 55)",
+              color: "#fff",
+              borderRadius: "16px",
+              padding: "16px 24px",
+              fontSize: "16px",
+            },
+            success: { style: { background: "rgb(34 197 94)" } },
+            error: { style: { background: "rgb(239 68 68)" } },
+          }}
+        />
+      </>
+    );
+  }
+
   return (
     <>
       {shouldHideLayout ? (
@@ -64,7 +99,7 @@ export default function LayoutClient({
       ) : (
         <>
           <Header />
-          <main>{children}</main>
+          <main className="flex-1">{children}</main>
           <Footer />
         </>
       )}

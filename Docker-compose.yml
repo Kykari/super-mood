@@ -47,7 +47,6 @@ services:
       - mood-network
 
   frontend:
-  
     build:
       context: ./frontend
       dockerfile: Dockerfile
@@ -55,10 +54,11 @@ services:
       - "3000:3000"
     environment:
       - NODE_ENV=development
+      - NEXT_TELEMETRY_DISABLED=1
     volumes:
       - ./frontend:/app
-      - /app/node_modules
-      - /app/.next
+      - frontend_node_modules:/app/node_modules
+      - frontend_next_cache:/app/.next
     depends_on:
       - backend
     restart: unless-stopped
@@ -66,7 +66,7 @@ services:
   minio:
     image: minio/minio:latest
     container_name: mood-minio
-    command: server /data --console-address ":9001" # ← главное исправление
+    command: server /data --console-address ":9001"
     environment:
       MINIO_ROOT_USER: ${MINIO_ACCESS_KEY:-minioadmin}
       MINIO_ROOT_PASSWORD: ${MINIO_SECRET_KEY:-minioadmin}

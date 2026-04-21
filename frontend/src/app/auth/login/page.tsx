@@ -31,7 +31,7 @@ export default function Login() {
           },
           credentials: "include",
           body: data.toString(),
-        }
+        },
       );
 
       if (!res.ok) {
@@ -69,7 +69,7 @@ export default function Login() {
                   alt="Такса"
                   width={500}
                   height={500}
-                  className="w-full h-auto rounded-2xl lg:rounded-3xl shadow-xl"
+                  className="w-full h-auto"
                   priority
                 />
               </div>

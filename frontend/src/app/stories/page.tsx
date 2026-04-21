@@ -6,6 +6,62 @@ import Link from "next/link";
 import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
 import BackToHome from "../components/BackToHome";
+import {
+  History,
+  Edit,
+  Trash2,
+  Save,
+  X,
+  Camera,
+  Maximize2,
+  Undo2,
+  Sparkles,
+  NotebookPen,
+  Calendar,
+  Clock,
+  Smile,
+  Activity,
+  FolderOpen,
+  Laptop,
+  Phone,
+  Book,
+  Tv,
+  Gamepad2,
+  Music,
+  Bed,
+  Footprints,
+  Dumbbell,
+  Bike,
+  Coffee,
+  ChefHat,
+  Utensils,
+  Wine,
+  Truck,
+  Trees,
+  Dog,
+  Mountain,
+  Wind,
+  Users,
+  Smartphone,
+  MessageCircle,
+  PartyPopper,
+  Handshake,
+  Paintbrush,
+  PenTool,
+  Scissors,
+  Bath,
+  Flower,
+  Brain,
+  Brush,
+  Shirt,
+  Leaf,
+  Home,
+  Notebook,
+  CalendarDays,
+  Languages,
+  DollarSign,
+  Newspaper,
+} from "lucide-react";
 
 interface Activity {
   id: number;
@@ -61,7 +117,59 @@ const moodTranslations: Record<string, string> = {
   interest: "интерес",
 };
 
-// Простой просмотрщик фото
+// Маппинг активностей на иконки
+const activityIconMap: Record<string, any> = {
+  "Работа за компьютером": Laptop,
+  Созвон: Phone,
+  Обучение: Book,
+  Чтение: Book,
+  Планирование: Calendar,
+  Сериал: Tv,
+  Книга: Book,
+  Видеоигры: Gamepad2,
+  Музыка: Music,
+  "Просто отдых": Bed,
+  Бег: Footprints,
+  "Тренажёрный зал": Dumbbell,
+  Йога: Activity,
+  Велосипед: Bike,
+  Прогулка: Footprints,
+  Кофе: Coffee,
+  Готовка: ChefHat,
+  "Вкусная еда": Utensils,
+  Алкоголь: Wine,
+  Доставка: Truck,
+  Парк: Trees,
+  "Прогулка с собакой": Dog,
+  Лес: Trees,
+  "Свежий воздух": Wind,
+  "За городом": Mountain,
+  "Встреча с друзьями": Users,
+  "Звонок родным": Smartphone,
+  Переписка: MessageCircle,
+  Тусовка: PartyPopper,
+  "Новое знакомство": Handshake,
+  Рисование: Paintbrush,
+  Фотография: Camera,
+  Писательство: PenTool,
+  Рукоделие: Scissors,
+  Душ: Bath,
+  "Уход за кожей": Flower,
+  Медитация: Brain,
+  "Дневной сон": Bed,
+  Растяжка: Activity,
+  Уборка: Brush,
+  Стирка: Shirt,
+  "Уход за растениями": Leaf,
+  "Готовка на неделю": ChefHat,
+  "Дела по дому": Home,
+  Дневник: Notebook,
+  "Планирование дня": CalendarDays,
+  "Изучение языка": Languages,
+  Финансы: DollarSign,
+  "Полезное чтение": Newspaper,
+};
+
 function PhotoViewer({
   isOpen,
   onClose,
@@ -113,7 +221,7 @@ function PhotoViewer({
         onClick={onClose}
         className="absolute top-6 right-6 z-10 p-3 bg-white/10 hover:bg-white/20 rounded-full backdrop-blur-sm transition"
       >
-        <span className="text-white text-2xl">✕</span>
+        <X className="w-6 h-6 text-white" />
       </button>
 
       {photos.length > 1 && (
@@ -179,15 +287,11 @@ export default function HistoryPage() {
     try {
       const [actsRes, storiesRes] = await Promise.all([
         fetch(
-          `${
-            process.env.NEXT_PUBLIC_API_URL || "http://localhost:8001"
-          }/activities`,
+          `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:8001"}/activities`,
           { credentials: "include" },
         ),
         fetch(
-          `${
-            process.env.NEXT_PUBLIC_API_URL || "http://localhost:8001"
-          }/stories`,
+          `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:8001"}/stories`,
           { credentials: "include" },
         ),
       ]);
@@ -276,9 +380,7 @@ export default function HistoryPage() {
       });
 
       const res = await fetch(
-        `${
-          process.env.NEXT_PUBLIC_API_URL || "http://localhost:8001"
-        }/stories/${storyId}`,
+        `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:8001"}/stories/${storyId}`,
         {
           method: "PUT",
           credentials: "include",
@@ -307,9 +409,7 @@ export default function HistoryPage() {
 
     try {
       const res = await fetch(
-        `${
-          process.env.NEXT_PUBLIC_API_URL || "http://localhost:8001"
-        }/stories/${storyId}`,
+        `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:8001"}/stories/${storyId}`,
         {
           method: "DELETE",
           credentials: "include",
@@ -377,58 +477,6 @@ export default function HistoryPage() {
     });
   };
 
-  const activityEmojiMap: Record<string, string> = {
-    "Работа за компьютером": "💻",
-    Созвон: "📞",
-    Обучение: "📚",
-    Чтение: "📖",
-    Планирование: "📅",
-    Сериал: "📺",
-    Книга: "📚",
-    Видеоигры: "🎮",
-    Музыка: "🎵",
-    "Просто отдых": "😴",
-    Бег: "🏃‍♀️",
-    "Тренажёрный зал": "🏋️‍♀️",
-    Йога: "🧘‍♀️",
-    Велосипед: "🚴‍♀️",
-    Прогулка: "🚶‍♀️",
-    Кофе: "☕",
-    Готовка: "🍳",
-    "Вкусная еда": "🍽️",
-    Алкоголь: "🍷",
-    Доставка: "🛵",
-    Парк: "🌳",
-    "Прогулка с собакой": "🐕",
-    Лес: "🌲",
-    "Свежий воздух": "🌬️",
-    "За городом": "🏞️",
-    "Встреча с друзьями": "👥",
-    "Звонок родным": "📱",
-    Переписка: "💬",
-    Тусовка: "🎉",
-    "Новое знакомство": "🤝",
-    Рисование: "🎨",
-    Фотография: "📸",
-    Писательство: "✍️",
-    Рукоделие: "🧵",
-    Душ: "🚿",
-    "Уход за кожей": "🧴",
-    Медитация: "🧘‍♀️",
-    "Дневной сон": "😴",
-    Растяжка: "🤸‍♀️",
-    Уборка: "🧹",
-    Стирка: "🧺",
-    "Уход за растениями": "🌱",
-    "Готовка на неделю": "🍱",
-    "Дела по дому": "🏠",
-    Дневник: "📔",
-    "Планирование дня": "🗓️",
-    "Изучение языка": "🗣️",
-    Финансы: "💰",
-    "Полезное чтение": "📰",
-  };
-
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -443,7 +491,8 @@ export default function HistoryPage() {
         <BackToHome />
         <div className="max-w-4xl mx-auto">
           <div className="text-center mb-12">
-            <h1 className="text-4xl sm:text-5xl font-black mb-4">
+            <h1 className="text-4xl sm:text-5xl font-black mb-4 flex items-center justify-center gap-3">
+              <History className="w-10 h-10 text-[#7F1D1D] dark:text-[#f87171]" />
               <span className="bg-gradient-to-r from-[#7F1D1D] to-[#DC2626] bg-clip-text text-transparent">
                 ИСТОРИЯ ЗАПИСЕЙ
               </span>
@@ -452,18 +501,13 @@ export default function HistoryPage() {
 
           {stories.length === 0 ? (
             <div className="text-center py-20">
-              <Image
-                src="/history.svg"
-                alt="Нет записей"
-                width={120}
-                height={120}
-                className="mx-auto mb-6"
-              />
+              <FolderOpen className="w-24 h-24 mx-auto mb-6 text-gray-400 dark:text-gray-500" />
               <h3 className="text-2xl font-bold text-[#7F1D1D] dark:text-white mb-4">
                 Записей пока нет
               </h3>
               <Link href="/stories/create">
-                <button className="bg-gradient-to-r from-[#7F1D1D] to-[#DC2626] hover:from-[#991B1B] hover:to-[#ef4444] text-white px-10 py-5 rounded-2xl font-bold text-xl shadow-2xl">
+                <button className="bg-gradient-to-r from-[#7F1D1D] to-[#DC2626] hover:from-[#991B1B] hover:to-[#ef4444] text-white px-10 py-5 rounded-2xl font-bold text-xl shadow-2xl flex items-center gap-2 mx-auto">
+                  <Sparkles className="w-6 h-6" />
                   Создать запись
                 </button>
               </Link>
@@ -479,19 +523,18 @@ export default function HistoryPage() {
                     key={story.id}
                     className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-3xl p-8 shadow-2xl border border-gray-100 dark:border-gray-700"
                   >
-                    <div className="flex justify-between items-start mb-6">
+                    <div className="flex flex-wrap justify-between items-start gap-4 mb-6">
                       <div className="flex items-center gap-4">
-                        <Image
-                          src="/history.svg"
-                          alt="Запись"
-                          width={48}
-                          height={48}
-                        />
+                        <div className="w-12 h-12 rounded-full bg-gradient-to-r from-[#7F1D1D] to-[#DC2626] flex items-center justify-center">
+                          <NotebookPen className="w-6 h-6 text-white" />
+                        </div>
                         <div>
-                          <h3 className="text-xl font-bold text-[#7F1D1D] dark:text-white">
+                          <h3 className="text-xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
+                            <Calendar className="w-4 h-4 text-[#7F1D1D] dark:text-[#f87171]" />
                             {formatDate(story.created_at)}
                           </h3>
-                          <p className="text-gray-600 dark:text-gray-400">
+                          <p className="text-gray-600 dark:text-gray-400 flex items-center gap-1">
+                            <Clock className="w-3 h-3" />
                             {formatTime(story.created_at)}
                           </p>
                         </div>
@@ -504,14 +547,14 @@ export default function HistoryPage() {
                               onClick={() => saveEdit(story.id)}
                               className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-[#7F1D1D] to-[#DC2626] text-white rounded-xl font-bold hover:shadow-lg transition-shadow"
                             >
-                              <span className="text-lg">✔</span>
+                              <Save className="w-4 h-4" />
                               Сохранить
                             </button>
                             <button
                               onClick={cancelEditing}
                               className="flex items-center gap-2 px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-white rounded-xl font-bold hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
                             >
-                              <span className="text-lg">✘</span>
+                              <X className="w-4 h-4" />
                               Отмена
                             </button>
                           </>
@@ -521,14 +564,14 @@ export default function HistoryPage() {
                               onClick={() => startEditing(story)}
                               className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-[#7F1D1D] to-[#DC2626] text-white rounded-xl font-bold hover:shadow-lg transition-shadow"
                             >
-                              <span className="text-lg">✐</span>
+                              <Edit className="w-4 h-4" />
                               Редактировать
                             </button>
                             <button
                               onClick={() => handleDelete(story.id)}
                               className="flex items-center gap-2 px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-white rounded-xl font-bold hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
                             >
-                              <span className="text-lg">✕</span>
+                              <Trash2 className="w-4 h-4" />
                               Удалить
                             </button>
                           </>
@@ -537,7 +580,8 @@ export default function HistoryPage() {
                     </div>
 
                     <div className="mb-6">
-                      <h4 className="text-sm font-medium text-[#7F1D1D] dark:text-gray-400 mb-3">
+                      <h4 className="text-sm font-medium text-[#7F1D1D] dark:text-gray-400 mb-3 flex items-center gap-2">
+                        <Smile className="w-4 h-4" />
                         Эмоции:
                       </h4>
                       <div className="flex flex-wrap gap-3">
@@ -558,7 +602,8 @@ export default function HistoryPage() {
                     </div>
 
                     <div className="mb-6">
-                      <h4 className="text-sm font-medium text-[#7F1D1D] dark:text-gray-400 mb-3">
+                      <h4 className="text-sm font-medium text-[#7F1D1D] dark:text-gray-400 mb-3 flex items-center gap-2">
+                        <Activity className="w-4 h-4" />
                         Активности:
                       </h4>
                       <div className="flex flex-wrap gap-4">
@@ -566,14 +611,14 @@ export default function HistoryPage() {
                           const name =
                             activityMap[act.activity_id] ||
                             `ID ${act.activity_id}`;
-                          const emoji = activityEmojiMap[name] || "✨";
-
+                          const IconComponent =
+                            activityIconMap[name] || Activity;
                           return (
                             <div
                               key={i}
                               className="flex items-center gap-3 bg-gray-50 dark:bg-gray-700/50 px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-600"
                             >
-                              <span className="text-2xl">{emoji}</span>
+                              <IconComponent className="w-5 h-5 text-gray-600 dark:text-gray-300" />
                               <span className="font-medium dark:text-white">
                                 {name}
                               </span>
@@ -600,9 +645,6 @@ export default function HistoryPage() {
                         <h4 className="text-sm font-medium text-[#7F1D1D] dark:text-gray-400 mb-3">
                           Заметки:
                         </h4>
-                        <p className="text-gray-800 dark:text-gray-300 leading-relaxed text-lg">
-                          {story.text}
-                        </p>
                       </div>
                     ) : null}
 
@@ -635,15 +677,12 @@ export default function HistoryPage() {
                                         unoptimized
                                       />
                                       <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
-                                        <span className="text-white text-2xl">
-                                          {isMarkedForDelete ? "↺" : "✕"}
-                                        </span>
+                                        {isMarkedForDelete ? (
+                                          <Undo2 className="w-8 h-8 text-white" />
+                                        ) : (
+                                          <Trash2 className="w-8 h-8 text-white" />
+                                        )}
                                       </div>
-                                    </div>
-                                    <div className="text-xs text-center mt-2 text-gray-600 dark:text-gray-400">
-                                      {isMarkedForDelete
-                                        ? "Восстановить"
-                                        : "Удалить"}
                                     </div>
                                   </div>
                                 );
@@ -673,7 +712,7 @@ export default function HistoryPage() {
                               htmlFor={`file-input-${story.id}`}
                               className="cursor-pointer"
                             >
-                              <div className="text-4xl mb-4">📷</div>
+                              <Camera className="w-12 h-12 mx-auto mb-4 text-gray-400" />
                               <p className="text-lg font-bold dark:text-white">
                                 Нажмите для загрузки фото
                               </p>
@@ -701,11 +740,8 @@ export default function HistoryPage() {
                                       onClick={() => removeNewPhoto(i)}
                                       className="absolute -top-2 -right-2 bg-[#7F1D1D] text-white w-6 h-6 rounded-full flex items-center justify-center"
                                     >
-                                      ✕
+                                      <X className="w-3 h-3" />
                                     </button>
-                                    <div className="text-xs text-center mt-2 truncate text-gray-600 dark:text-gray-400">
-                                      {file.name}
-                                    </div>
                                   </div>
                                 ))}
                               </div>
@@ -734,9 +770,7 @@ export default function HistoryPage() {
                                   unoptimized
                                 />
                                 <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-all duration-300 flex items-center justify-center">
-                                  <span className="text-white text-2xl opacity-0 group-hover:opacity-100 transform translate-y-4 group-hover:translate-y-0 transition-all">
-                                    ⤢
-                                  </span>
+                                  <Maximize2 className="w-8 h-8 text-white opacity-0 group-hover:opacity-100 transform translate-y-4 group-hover:translate-y-0 transition-all" />
                                 </div>
                               </div>
                             ))}

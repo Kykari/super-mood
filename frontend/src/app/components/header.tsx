@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useState, useEffect, useCallback } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { useTheme } from "../contexts/ThemeContext";
+import { LogOut, User, Menu, X, Sun, Moon } from "lucide-react";
 import toast from "react-hot-toast";
 
 export default function Header() {
@@ -47,7 +48,6 @@ export default function Header() {
         },
       );
 
-      // Чистим cookies
       document.cookie.split(";").forEach((cookie) => {
         const eqPos = cookie.indexOf("=");
         const name = eqPos > -1 ? cookie.substr(0, eqPos) : cookie;
@@ -76,8 +76,7 @@ export default function Header() {
     toast.success(`Тема: ${isDark ? "Светлая" : "Темная"}`);
   };
 
-  // Не показываем хедер на страницах логина и регистрации
-  const hideHeaderPaths = ["/auth/login", "/auth/register", "/auth"];
+  const hideHeaderPaths = ["/auth/login", "/auth/register"];
   if (hideHeaderPaths.some((path) => pathname.startsWith(path))) {
     return null;
   }
@@ -110,57 +109,22 @@ export default function Header() {
             onClick={handleThemeToggle}
             className="p-2 hover:bg-white/20 rounded-xl transition-all duration-300 backdrop-blur-sm border border-white/20"
           >
-            <div className="w-6 h-6 flex items-center justify-center">
-              {isDark ? (
-                <svg
-                  className="w-5 h-5 text-yellow-300"
-                  fill="currentColor"
-                  viewBox="0 0 20 20"
-                >
-                  <path
-                    fillRule="evenodd"
-                    d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z"
-                    clipRule="evenodd"
-                  />
-                </svg>
-              ) : (
-                <svg
-                  className="w-5 h-5 text-yellow-300"
-                  fill="currentColor"
-                  viewBox="0 0 20 20"
-                >
-                  <path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z" />
-                </svg>
-              )}
-            </div>
+            {isDark ? (
+              <Sun className="w-5 h-5 text-yellow-300" />
+            ) : (
+              <Moon className="w-5 h-5 text-yellow-300" />
+            )}
           </button>
 
           <button
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
             className="lg:hidden p-2 hover:bg-white/20 rounded-xl transition-all duration-300"
           >
-            <svg
-              className="w-6 h-6 text-white"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              {isMobileMenuOpen ? (
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M6 18L18 6M6 6l12 12"
-                />
-              ) : (
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M4 6h16M4 12h16M4 18h16"
-                />
-              )}
-            </svg>
+            {isMobileMenuOpen ? (
+              <X className="w-6 h-6 text-white" />
+            ) : (
+              <Menu className="w-6 h-6 text-white" />
+            )}
           </button>
         </div>
 
@@ -182,36 +146,12 @@ export default function Header() {
                   onClick={handleLogout}
                   className="group relative p-2 hover:bg-white/20 rounded-xl transition-all duration-300 backdrop-blur-sm border border-white/20"
                 >
-                  <svg
-                    className="w-6 h-6 text-white"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
-                    />
-                  </svg>
+                  <LogOut className="w-5 h-5 text-white" />
                 </button>
 
-                <Link href="/auth/profile" className="group relative">
+                <Link href="/profile" className="group relative">
                   <div className="bg-white/20 hover:bg-white/30 p-2 rounded-xl transition-all duration-300 group-hover:scale-110 backdrop-blur-sm border border-white/20">
-                    <svg
-                      className="w-6 h-6 text-white"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
-                      />
-                    </svg>
+                    <User className="w-5 h-5 text-white" />
                   </div>
                 </Link>
               </>
@@ -243,7 +183,7 @@ export default function Header() {
             {isAuthenticated ? (
               <>
                 <Link
-                  href="/auth/profile"
+                  href="/profile"
                   onClick={() => setIsMobileMenuOpen(false)}
                   className="flex items-center justify-between p-3 hover:bg-white/20 rounded-xl"
                 >

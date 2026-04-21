@@ -97,7 +97,7 @@ export default function Register() {
                   alt="Такса"
                   width={500}
                   height={500}
-                  className="w-full h-auto rounded-2xl lg:rounded-3xl shadow-xl"
+                  className="w-full h-auto"
                   priority
                 />
               </div>

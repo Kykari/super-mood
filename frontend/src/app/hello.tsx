@@ -1,22 +1,31 @@
 import Image from "next/image";
 import Link from "next/link";
 import ThemeCard from "./components/DarkTheme";
+import {
+  Brain,
+  Target,
+  Shield,
+  Sparkles,
+  Camera,
+  BarChart,
+  NotebookPen,
+} from "lucide-react";
 
 const features = [
   {
-    icon: "/test.svg",
+    icon: Brain,
     title: "AI Анализ настроения",
     description:
       "Искусственный интеллект анализирует ваши паттерны настроения и дает персонализированные рекомендации",
   },
   {
-    icon: "/goal.svg",
+    icon: Target,
     title: "Умные цели",
     description:
       "Ставьте цели и отслеживайте прогресс с помощью интеллектуальной системы мотивации",
   },
   {
-    icon: "/lock.svg",
+    icon: Shield,
     title: "Полная конфиденциальность",
     description:
       "Ваши данные защищены банковским уровнем шифрования и никогда не передаются третьим лицам",
@@ -56,7 +65,8 @@ export default function Home() {
 
                 <div className="flex gap-4 sm:gap-6 mt-4 lg:mt-6">
                   <Link href="/auth/register">
-                    <button className="bg-gradient-to-r from-[#7F1D1D] to-[#DC2626] hover:from-[#991B1B] hover:to-[#ef4444] text-white px-8 sm:px-12 py-4 sm:py-5 rounded-2xl text-lg sm:text-xl font-semibold shadow-2xl hover:shadow-3xl transition-all duration-500 transform hover:scale-105">
+                    <button className="bg-gradient-to-r from-[#7F1D1D] to-[#DC2626] hover:from-[#991B1B] hover:to-[#ef4444] text-white px-8 sm:px-12 py-4 sm:py-5 rounded-2xl text-lg sm:text-xl font-semibold shadow-2xl hover:shadow-3xl transition-all duration-500 transform hover:scale-105 flex items-center gap-2">
+                      <Sparkles className="w-6 h-6" />
                       Попробовать
                     </button>
                   </Link>
@@ -86,7 +96,8 @@ export default function Home() {
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 lg:gap-12 items-start max-w-7xl mx-auto">
               <div className="flex flex-col gap-12 lg:gap-16">
                 <div className="group bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-3xl p-6 sm:p-8 shadow-2xl border border-gray-100 dark:border-gray-700 hover:shadow-3xl transition-all duration-500 hover:scale-105">
-                  <h3 className="text-xl sm:text-2xl font-bold text-[#7F1D1D] dark:text-[#f87171] mb-4 text-center">
+                  <h3 className="text-xl sm:text-2xl font-bold text-[#7F1D1D] dark:text-[#f87171] mb-4 text-center flex items-center justify-center gap-2">
+                    <NotebookPen className="w-6 h-6" />
                     Записывайте настроение мгновенно
                   </h3>
                   <p className="text-gray-600 dark:text-gray-300 text-center leading-relaxed text-sm sm:text-base">
@@ -96,7 +107,8 @@ export default function Home() {
                 </div>
 
                 <div className="group bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-3xl p-6 sm:p-8 shadow-2xl border border-gray-100 dark:border-gray-700 hover:shadow-3xl transition-all duration-500 hover:scale-105">
-                  <h3 className="text-xl sm:text-2xl font-bold text-[#7F1D1D] dark:text-[#f87171] mb-4 text-center">
+                  <h3 className="text-xl sm:text-2xl font-bold text-[#7F1D1D] dark:text-[#f87171] mb-4 text-center flex items-center justify-center gap-2">
+                    <Camera className="w-6 h-6" />
                     Прикрепляйте фотографии
                   </h3>
                   <p className="text-gray-600 dark:text-gray-300 text-center leading-relaxed text-sm sm:text-base">
@@ -130,7 +142,8 @@ export default function Home() {
 
               <div className="flex flex-col gap-12 lg:gap-16">
                 <div className="group bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-3xl p-6 sm:p-8 shadow-2xl border border-gray-100 dark:border-gray-700 hover:shadow-3xl transition-all duration-500 hover:scale-105">
-                  <h3 className="text-xl sm:text-2xl font-bold text-[#7F1D1D] dark:text-[#f87171] mb-4 text-center">
+                  <h3 className="text-xl sm:text-2xl font-bold text-[#7F1D1D] dark:text-[#f87171] mb-4 text-center flex items-center justify-center gap-2">
+                    <BarChart className="w-6 h-6" />
                     Анализируйте свои эмоции с графиками
                   </h3>
                   <p className="text-gray-600 dark:text-gray-300 text-center leading-relaxed text-sm sm:text-base">
@@ -224,13 +237,7 @@ export default function Home() {
                   className="group bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-3xl p-6 lg:p-10 shadow-2xl border border-gray-100 dark:border-gray-700 hover:shadow-3xl transition-all duration-500 hover:scale-105"
                 >
                   <div className="w-16 h-16 lg:w-20 lg:h-20 bg-gradient-to-r from-[#7F1D1D] to-[#DC2626] rounded-3xl flex items-center justify-center mb-6 lg:mb-8 group-hover:scale-110 transition-transform duration-300 shadow-lg">
-                    <Image
-                      src={feature.icon}
-                      alt={feature.title}
-                      width={32}
-                      height={32}
-                      className="text-2xl lg:text-3xl"
-                    />
+                    <feature.icon className="w-8 h-8 text-white" />
                   </div>
                   <h3 className="text-xl lg:text-2xl font-bold text-gray-900 dark:text-white mb-4">
                     {feature.title}
@@ -281,7 +288,6 @@ export default function Home() {
         <section className="py-24 lg:py-32">
           <div className="container mx-auto px-6 sm:px-8 lg:px-12">
             <div className="grid grid-cols-1 lg:grid-cols-2 items-center max-w-5xl mx-auto">
-              {" "}
               <div className="relative group order-2 lg:order-1 max-w-[250px] mx-auto">
                 <div className="absolute -inset-4 sm:-inset-6 bg-gradient-to-r rounded-3xl opacity-20 blur-xl group-hover:opacity-30 transition-all duration-500"></div>
                 <Image

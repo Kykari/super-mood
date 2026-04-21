@@ -5,6 +5,18 @@ import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 import toast from "react-hot-toast";
 import BackToHome from "../../components/BackToHome";
+import {
+  User,
+  Key,
+  Trash2,
+  Camera,
+  Save,
+  X,
+  LogOut,
+  Sun,
+  Moon,
+} from "lucide-react";
+import { useTheme } from "../../contexts/ThemeContext";
 
 interface UserData {
   id: number;
@@ -16,6 +28,7 @@ interface UserData {
 
 export default function ProfilePage() {
   const router = useRouter();
+  const { isDark, toggleTheme } = useTheme();
 
   const [user, setUser] = useState<UserData | null>(null);
   const [originalUser, setOriginalUser] = useState<UserData | null>(null);
@@ -233,6 +246,34 @@ export default function ProfilePage() {
     }
   };
 
+  // Выход из аккаунта
+  const handleLogout = async () => {
+    try {
+      await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:8001"}/auth/logout`,
+        {
+          method: "POST",
+          credentials: "include",
+        },
+      );
+
+      document.cookie.split(";").forEach((cookie) => {
+        const [name] = cookie.split("=");
+        if (name && name.trim()) {
+          document.cookie = `${name.trim()}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
+        }
+      });
+
+      localStorage.clear();
+      sessionStorage.clear();
+      toast.success("Вы вышли из аккаунта");
+      router.push("/");
+      router.refresh();
+    } catch (error) {
+      toast.error("Ошибка при выходе");
+    }
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -247,29 +288,93 @@ export default function ProfilePage() {
     {
       id: "profile",
       label: "Профиль",
-      activeIcon: "/pencil1.svg",
-      inactiveIcon: "/pencil2.svg",
+      icon: User,
     },
     {
       id: "password",
       label: "Пароль",
-      activeIcon: "/key1.svg",
-      inactiveIcon: "/key2.svg",
+      icon: Key,
     },
     {
       id: "danger",
       label: "Удалить аккаунт",
-      activeIcon: "/delete1.svg",
-      inactiveIcon: "/delete2.svg",
+      icon: Trash2,
     },
   ];
 
   return (
     <main className="bg-gradient-to-br from-white via-gray-50 to-gray-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 min-h-screen">
+      {/* Мобильная шапка */}
+      <div className="lg:hidden sticky top-0 z-10 bg-white/80 dark:bg-gray-900/80 backdrop-blur-md border-b border-gray-200 dark:border-gray-700 px-4 py-3 flex justify-between items-center">
+        <button
+          onClick={() => router.push("/home")}
+          className="p-2 rounded-xl bg-gray-100 dark:bg-gray-800"
+        >
+          <svg
+            className="w-5 h-5"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M10 19l-7-7m0 0l7-7m-7 7h18"
+            />
+          </svg>
+        </button>
+        <h2 className="text-lg font-bold text-gray-900 dark:text-white">
+          Профиль
+        </h2>
+        <div className="flex gap-2">
+          <button
+            onClick={toggleTheme}
+            className="p-2 rounded-xl bg-gray-100 dark:bg-gray-800"
+          >
+            {isDark ? (
+              <Sun className="w-5 h-5" />
+            ) : (
+              <Moon className="w-5 h-5" />
+            )}
+          </button>
+          <button
+            onClick={handleLogout}
+            className="p-2 rounded-xl bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400"
+          >
+            <LogOut className="w-5 h-5" />
+          </button>
+        </div>
+      </div>
+
       <div className="container mx-auto px-6 sm:px-8 lg:px-12 pt-8 pb-12">
         <BackToHome />
+
+        {/* Мобильные кнопки навигации */}
+        <div className="lg:hidden grid grid-cols-3 gap-2 mb-6">
+          {navItems.map((item) => (
+            <button
+              key={item.id}
+              onClick={() => setActiveTab(item.id as any)}
+              className={`flex flex-col items-center gap-1 py-3 px-2 rounded-xl font-semibold transition-all duration-300
+                ${
+                  activeTab === item.id
+                    ? item.id === "danger"
+                      ? "bg-[#7F1D1D] text-white shadow-lg"
+                      : "bg-gradient-to-r from-[#7F1D1D] to-[#DC2626] text-white shadow-lg"
+                    : item.id === "danger"
+                      ? "bg-gray-100 dark:bg-gray-800 text-[#7F1D1D] dark:text-red-400"
+                      : "bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300"
+                }`}
+            >
+              <item.icon className="w-5 h-5" />
+              <span className="text-xs">{item.label}</span>
+            </button>
+          ))}
+        </div>
+
         <div className="max-w-4xl mx-auto">
-          <div className="text-center mb-8">
+          <div className="text-center mb-8 hidden lg:block">
             <h1 className="text-4xl sm:text-5xl font-black mb-4">
               <span className="bg-gradient-to-r from-[#7F1D1D] to-[#DC2626] bg-clip-text text-transparent">
                 ПРОФИЛЬ
@@ -278,8 +383,8 @@ export default function ProfilePage() {
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-            {/* Боковая навигация */}
-            <div className="lg:col-span-1">
+            {/* Боковая навигация - только для десктопа */}
+            <div className="hidden lg:block lg:col-span-1">
               <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-3xl p-6 shadow-2xl border border-gray-100 dark:border-gray-700">
                 <nav className="space-y-4">
                   {navItems.map((item) => (
@@ -297,16 +402,7 @@ export default function ProfilePage() {
                               : "text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
                         }`}
                     >
-                      <Image
-                        src={
-                          activeTab === item.id
-                            ? item.activeIcon
-                            : item.inactiveIcon
-                        }
-                        width={24}
-                        height={24}
-                        alt={item.label}
-                      />
+                      <item.icon className="w-5 h-5" />
                       {item.label}
                     </button>
                   ))}
@@ -332,33 +428,13 @@ export default function ProfilePage() {
                                 className="w-full h-full object-cover"
                               />
                             ) : (
-                              <span className="text-5xl font-bold text-[#7F1D1D] dark:text-[#f87171]">
-                                {user.username[0].toUpperCase()}
-                              </span>
+                              <User className="w-12 h-12 text-[#7F1D1D] dark:text-[#f87171]" />
                             )}
                           </div>
                         </div>
                         <label className="absolute -bottom-2 -right-2 cursor-pointer">
                           <div className="bg-gradient-to-r from-[#7F1D1D] to-[#DC2626] p-2 rounded-full shadow-lg hover:scale-110 transition-transform">
-                            <svg
-                              className="w-4 h-4 text-white"
-                              fill="none"
-                              stroke="currentColor"
-                              viewBox="0 0 24 24"
-                            >
-                              <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth={2}
-                                d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"
-                              />
-                              <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth={2}
-                                d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"
-                              />
-                            </svg>
+                            <Camera className="w-4 h-4 text-white" />
                           </div>
                           <input
                             type="file"
@@ -455,14 +531,16 @@ export default function ProfilePage() {
                           <>
                             <button
                               onClick={handleSave}
-                              className="bg-green-600 hover:bg-green-700 text-white px-8 py-3 rounded-2xl font-semibold shadow-lg transition-all duration-300"
+                              className="bg-green-600 hover:bg-green-700 text-white px-8 py-3 rounded-2xl font-semibold shadow-lg transition-all duration-300 flex items-center gap-2"
                             >
+                              <Save className="w-5 h-5" />
                               Сохранить
                             </button>
                             <button
                               onClick={handleCancel}
-                              className="bg-gray-500 hover:bg-gray-600 text-white px-8 py-3 rounded-2xl font-semibold shadow-lg transition-all duration-300"
+                              className="bg-gray-500 hover:bg-gray-600 text-white px-8 py-3 rounded-2xl font-semibold shadow-lg transition-all duration-300 flex items-center gap-2"
                             >
+                              <X className="w-5 h-5" />
                               Отмена
                             </button>
                           </>

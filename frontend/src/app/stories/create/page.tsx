@@ -6,6 +6,60 @@ import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 import EmotionWheel from "../../components/EmotionWheel";
 import BackToHome from "../../components/BackToHome";
+import {
+  ArrowLeft,
+  Camera,
+  Trash2,
+  Sparkles,
+  Activity,
+  PenLine,
+  Image as ImageIcon,
+  Check,
+  Laptop,
+  Phone,
+  Book,
+  Calendar,
+  Tv,
+  Gamepad2,
+  Music,
+  Bed,
+  Footprints,
+  Dumbbell,
+  Bike,
+  Coffee,
+  ChefHat,
+  Utensils,
+  Wine,
+  Truck,
+  Trees,
+  Dog,
+  Mountain,
+  Wind,
+  Users,
+  Smartphone,
+  MessageCircle,
+  PartyPopper,
+  Handshake,
+  Paintbrush,
+  Camera as CameraIcon,
+  PenTool,
+  Scissors,
+  Bath,
+  Flower,
+  Brain,
+  Sofa,
+  Brush,
+  Shirt,
+  Leaf,
+  Mic,
+  Home,
+  Notebook,
+  CalendarDays,
+  Languages,
+  DollarSign,
+  Newspaper,
+  Plus,
+} from "lucide-react";
 
 interface Activity {
   id: number;
@@ -21,57 +75,57 @@ const questions = [
   { title: "Прикрепите фотоотчет", subtitle: "Добавьте фотографии" },
 ];
 
-// ←←← КРАСИВЫЕ СМАЙЛИКИ ДЛЯ ВСЕХ АКТИВНОСТЕЙ ←←←
-const emojiMap: Record<string, string> = {
-  "Работа за компьютером": "💻",
-  Созвон: "📞",
-  Обучение: "📚",
-  Чтение: "📖",
-  Планирование: "📅",
-  Сериал: "📺",
-  Книга: "📚",
-  Видеоигры: "🎮",
-  Музыка: "🎵",
-  "Просто отдых": "😴",
-  Бег: "🏃‍♀️",
-  "Тренажёрный зал": "🏋️‍♀️",
-  Йога: "🧘‍♀️",
-  Велосипед: "🚴‍♀️",
-  Прогулка: "🚶‍♀️",
-  Кофе: "☕",
-  Готовка: "🍳",
-  "Вкусная еда": "🍽️",
-  Алкоголь: "🍷",
-  Доставка: "🛵",
-  Парк: "🌳",
-  "Прогулка с собакой": "🐕",
-  Лес: "🌲",
-  "Свежий воздух": "🌬️",
-  "За городом": "🏞️",
-  "Встреча с друзьями": "👥",
-  "Звонок родным": "📱",
-  Переписка: "💬",
-  Тусовка: "🎉",
-  "Новое знакомство": "🤝",
-  Рисование: "🎨",
-  Фотография: "📸",
-  Писательство: "✍️",
-  Рукоделие: "🧵",
-  Душ: "🚿",
-  "Уход за кожей": "🧴",
-  Медитация: "🧘‍♀️",
-  "Дневной сон": "😴",
-  Растяжка: "🤸‍♀️",
-  Уборка: "🧹",
-  Стирка: "🧺",
-  "Уход за растениями": "🌱",
-  "Готовка на неделю": "🍱",
-  "Дела по дому": "🏠",
-  Дневник: "📔",
-  "Планирование дня": "🗓️",
-  "Изучение языка": "🗣️",
-  Финансы: "💰",
-  "Полезное чтение": "📰",
+// Маппинг активностей на иконки
+const activityIconMap: Record<string, any> = {
+  "Работа за компьютером": Laptop,
+  Созвон: Phone,
+  Обучение: Book,
+  Чтение: Book,
+  Планирование: Calendar,
+  Сериал: Tv,
+  Книга: Book,
+  Видеоигры: Gamepad2,
+  Музыка: Music,
+  "Просто отдых": Bed,
+  Бег: Footprints,
+  "Тренажёрный зал": Dumbbell,
+  Йога: Activity,
+  Велосипед: Bike,
+  Прогулка: Footprints,
+  Кофе: Coffee,
+  Готовка: ChefHat,
+  "Вкусная еда": Utensils,
+  Алкоголь: Wine,
+  Доставка: Truck,
+  Парк: Trees,
+  "Прогулка с собакой": Dog,
+  Лес: Trees,
+  "Свежий воздух": Wind,
+  "За городом": Mountain,
+  "Встреча с друзьями": Users,
+  "Звонок родным": Smartphone,
+  Переписка: MessageCircle,
+  Тусовка: PartyPopper,
+  "Новое знакомство": Handshake,
+  Рисование: Paintbrush,
+  Фотография: CameraIcon,
+  Писательство: PenTool,
+  Рукоделие: Scissors,
+  Душ: Bath,
+  "Уход за кожей": Flower,
+  Медитация: Brain,
+  "Дневной сон": Bed,
+  Растяжка: Activity,
+  Уборка: Brush,
+  Стирка: Shirt,
+  "Уход за растениями": Leaf,
+  "Готовка на неделю": ChefHat,
+  "Дела по дому": Home,
+  Дневник: Notebook,
+  "Планирование дня": CalendarDays,
+  "Изучение языка": Languages,
+  Финансы: DollarSign,
+  "Полезное чтение": Newspaper,
 };
 
 export default function CreateEntry() {
@@ -88,9 +142,7 @@ export default function CreateEntry() {
 
   useEffect(() => {
     fetch(
-      `${
-        process.env.NEXT_PUBLIC_API_URL || "http://localhost:8001"
-      }/activities`,
+      `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:8001"}/activities`,
       { credentials: "include" },
     )
       .then((r) => r.json())
@@ -156,9 +208,7 @@ export default function CreateEntry() {
 
     try {
       const res = await fetch(
-        `${
-          process.env.NEXT_PUBLIC_API_URL || "http://localhost:8001"
-        }/stories/create`,
+        `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:8001"}/stories/create`,
         {
           method: "POST",
           credentials: "include",
@@ -174,6 +224,14 @@ export default function CreateEntry() {
 
       const data = await res.json();
       console.log("Успешно сохранено:", data);
+
+      await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:8001"}/analytics?force=true`,
+        {
+          credentials: "include",
+        },
+      );
+
       toast.success("Запись сохранена!");
       router.push("/home");
     } catch (err) {
@@ -196,7 +254,7 @@ export default function CreateEntry() {
 
   return (
     <main className="min-h-screen bg-gradient-to-br from-white to-gray-50 dark:from-gray-900 dark:to-black py-8">
-      <BackToHome/>
+      <BackToHome />
       <div className="max-w-4xl mx-auto px-6">
         {/* Прогресс */}
         <div className="mb-5">
@@ -208,14 +266,15 @@ export default function CreateEntry() {
           </div>
         </div>
 
-        <h1 className="text-4xl font-bold text-center mb-12 bg-gradient-to-r from-red-700 to-red-500 bg-clip-text text-transparent">
+        <h1 className="text-4xl font-bold text-center mb-12 bg-gradient-to-r from-red-700 to-red-500 bg-clip-text text-transparent flex items-center justify-center gap-2">
+          <Sparkles className="w-8 h-8" />
           Новая запись
         </h1>
 
         {/* Шаг 1 — Эмоции */}
         {step === 0 && (
           <div className="bg-white dark:bg-gray-800 rounded-3xl p-8 shadow-2xl">
-            <h2 className="text-3xl font-bold text-center mb-8">
+            <h2 className="text-3xl font-bold dark:text-white text-center mb-8">
               {questions[0].title}
             </h2>
             <EmotionWheel
@@ -226,28 +285,37 @@ export default function CreateEntry() {
           </div>
         )}
 
-        {/* Шаг 2 — Активности с красивыми смайликами */}
+        {/* Шаг 2 — Активности с иконками */}
         {step === 1 && (
           <div className="bg-white dark:bg-gray-800 rounded-3xl p-8 shadow-2xl">
             <h2 className="text-3xl font-bold text-center mb-8">
               {questions[1].title}
             </h2>
             <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-6 gap-6">
-              {activities.map((act) => (
-                <button
-                  key={act.id}
-                  onClick={() => toggleActivity(act.id)}
-                  className={`p-6 rounded-3xl border-4 transition-all flex flex-col items-center gap-3
-                    ${
-                      selectedActivities.includes(act.id)
-                        ? "border-red-600 bg-red-50 dark:bg-red-900/30 shadow-xl scale-105"
-                        : "border-gray-300 dark:border-gray-600 hover:border-red-400"
-                    }`}
-                >
-                  <span className="text-6xl">{emojiMap[act.name] || "✨"}</span>
-                  <p className="text-sm font-medium text-center">{act.name}</p>
-                </button>
-              ))}
+              {activities.map((act) => {
+                const IconComponent = activityIconMap[act.name] || Activity;
+                const isSelected = selectedActivities.includes(act.id);
+                return (
+                  <button
+                    key={act.id}
+                    onClick={() => toggleActivity(act.id)}
+                    className={`p-6 rounded-3xl border-4 transition-all flex flex-col items-center gap-3
+                      ${
+                        isSelected
+                          ? "border-red-600 bg-red-50 dark:bg-red-900/30 shadow-xl scale-105"
+                          : "border-gray-300 dark:border-gray-600 hover:border-red-400"
+                      }`}
+                  >
+                    <IconComponent className="w-12 h-12 text-gray-700 dark:text-gray-300" />
+                    <p className="text-sm font-medium text-center">
+                      {act.name}
+                    </p>
+                    {isSelected && (
+                      <Check className="w-5 h-5 text-red-600 absolute top-2 right-2" />
+                    )}
+                  </button>
+                );
+              })}
             </div>
           </div>
         )}
@@ -282,8 +350,8 @@ export default function CreateEntry() {
                 className="hidden"
                 id="photo"
               />
-              <label htmlFor="photo">
-                <div className="text-6xl text-gray-400 mb-4">+</div>
+              <label htmlFor="photo" className="cursor-pointer">
+                <Camera className="w-16 h-16 text-gray-400 mx-auto mb-4" />
                 <p className="text-xl font-bold">Нажмите или перетащите фото</p>
               </label>
             </div>
@@ -300,9 +368,9 @@ export default function CreateEntry() {
                     />
                     <button
                       onClick={() => removePhoto(i)}
-                      className="absolute top-2 right-2 bg-red-600 text-white w-8 h-8 rounded-full opacity-0 group-hover:opacity-100 transition"
+                      className="absolute top-2 right-2 bg-red-600 text-white w-8 h-8 rounded-full opacity-0 group-hover:opacity-100 transition flex items-center justify-center"
                     >
-                      ×
+                      <Trash2 className="w-4 h-4" />
                     </button>
                   </div>
                 ))}
@@ -315,8 +383,9 @@ export default function CreateEntry() {
         <div className="flex justify-between mt-12">
           <button
             onClick={() => setStep((s) => Math.max(0, s - 1))}
-            className="px-10 py-4 bg-gray-200 dark:bg-gray-700 rounded-2xl font-bold"
+            className="px-10 py-4 bg-gray-200 dark:bg-gray-700 rounded-2xl font-bold flex items-center gap-2"
           >
+            <ArrowLeft className="w-5 h-5" />
             Назад
           </button>
 
@@ -324,15 +393,17 @@ export default function CreateEntry() {
             <button
               onClick={() => setStep((s) => s + 1)}
               disabled={!canNext}
-              className="px-12 py-4 bg-gradient-to-r from-red-700 to-red-500 text-white rounded-2xl font-bold disabled:opacity-50"
+              className="px-12 py-4 bg-gradient-to-r from-red-700 to-red-500 text-white rounded-2xl font-bold disabled:opacity-50 flex items-center gap-2"
             >
               Далее
+              <ArrowLeft className="w-5 h-5 rotate-180" />
             </button>
           ) : (
             <button
               onClick={saveEntry}
-              className="px-16 py-5 bg-gradient-to-r from-red-700 to-red-500 text-white rounded-2xl font-bold text-xl shadow-2xl hover:shadow-red-600/50"
+              className="px-16 py-5 bg-gradient-to-r from-red-700 to-red-500 text-white rounded-2xl font-bold text-xl shadow-2xl hover:shadow-red-600/50 flex items-center gap-3"
             >
+              <Check className="w-6 h-6" />
               Сохранить запись
             </button>
           )}

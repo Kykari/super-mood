@@ -5,6 +5,18 @@ import Image from "next/image";
 import Link from "next/link";
 import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
+import {
+  TrendingUp,
+  BookOpen,
+  BarChart,
+  Settings,
+  PenTool,
+  Sparkles,
+  Plus,
+  Edit,
+  NotebookPen,
+  ChartNoAxesCombined,
+} from "lucide-react";
 
 interface User {
   id: number;
@@ -78,17 +90,14 @@ export default function HomePage() {
   const loadData = async () => {
     try {
       const userRes = await fetch(
-        `${
-          process.env.NEXT_PUBLIC_API_URL || "http://localhost:8001"
-        }/auth/profile`,
+        `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:8001"}/auth/profile`,
         {
           credentials: "include",
-          cache: "no-store", // важно для актуальности сессии
+          cache: "no-store",
         },
       );
 
       if (!userRes.ok) {
-        // Если не авторизован — редиректим на логин, без бросания ошибки
         router.push("/auth/login");
         return;
       }
@@ -96,20 +105,15 @@ export default function HomePage() {
       const userData = await userRes.json();
       setUser(userData);
 
-      // Загружаем остальные данные только если пользователь авторизован
       const [storiesRes, analyticsRes] = await Promise.all([
         fetch(
-          `${
-            process.env.NEXT_PUBLIC_API_URL || "http://localhost:8001"
-          }/stories?limit=1`,
+          `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:8001"}/stories?limit=1`,
           {
             credentials: "include",
           },
         ),
         fetch(
-          `${
-            process.env.NEXT_PUBLIC_API_URL || "http://localhost:8001"
-          }/analytics`,
+          `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:8001"}/analytics`,
           {
             credentials: "include",
           },
@@ -129,7 +133,6 @@ export default function HomePage() {
       }
     } catch (err) {
       console.error("Ошибка загрузки данных:", err);
-      // Опционально: можно показать тост
       toast.error("Не удалось загрузить данные. Попробуйте перезайти.");
       router.push("/auth/login");
     } finally {
@@ -236,7 +239,7 @@ export default function HomePage() {
                 <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-xl sm:rounded-2xl p-5 sm:p-6 shadow-lg border border-gray-100 dark:border-gray-700">
                   <div className="flex items-center gap-3 sm:gap-4 mb-4">
                     <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-gradient-to-r from-[#7F1D1D] to-[#DC2626] flex items-center justify-center flex-shrink-0">
-                      <span className="text-white text-lg sm:text-xl">📈</span>
+                      <TrendingUp className="w-5 h-5 text-white" />
                     </div>
                     <div>
                       <h3 className="font-bold text-gray-900 dark:text-white text-base sm:text-lg">
@@ -280,8 +283,9 @@ export default function HomePage() {
                   )}
 
                   <Link href="/analytics">
-                    <button className="w-full px-3 py-2 sm:px-4 sm:py-2 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 rounded-lg sm:rounded-xl font-medium transition-colors text-sm sm:text-base">
-                      ✦ Подробная аналитика
+                    <button className="w-full px-3 py-2 sm:px-4 sm:py-2 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 rounded-lg sm:rounded-xl font-medium transition-colors text-sm sm:text-base flex items-center justify-center gap-2">
+                      <Sparkles className="w-4 h-4" />
+                      Подробная аналитика
                     </button>
                   </Link>
                 </div>
@@ -301,7 +305,7 @@ export default function HomePage() {
                 <div className="flex flex-col h-full">
                   <div className="mb-3 sm:mb-4">
                     <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-white/20 flex items-center justify-center mb-3 sm:mb-4 mx-auto sm:mx-0">
-                      <span className="text-white text-xl sm:text-2xl">✐</span>
+                      <PenTool className="w-5 h-5 text-white" />
                     </div>
                     <h3 className="text-lg sm:text-xl font-bold text-white mb-2 text-center sm:text-left">
                       Создать запись
@@ -325,7 +329,7 @@ export default function HomePage() {
                 <div className="flex flex-col h-full">
                   <div className="mb-3 sm:mb-4">
                     <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-gradient-to-r from-[#7F1D1D] to-[#DC2626] flex items-center justify-center mb-3 sm:mb-4 mx-auto sm:mx-0">
-                      <span className="text-white text-xl sm:text-2xl">📖</span>
+                      <BookOpen className="w-5 h-5 text-white" />
                     </div>
                     <h3 className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white mb-2 text-center sm:text-left">
                       История
@@ -348,7 +352,7 @@ export default function HomePage() {
                 <div className="flex flex-col h-full">
                   <div className="mb-3 sm:mb-4">
                     <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-gradient-to-r from-[#7F1D1D] to-[#DC2626] flex items-center justify-center mb-3 sm:mb-4 mx-auto sm:mx-0">
-                      <span className="text-white text-xl sm:text-2xl">📊</span>
+                      <BarChart className="w-5 h-5 text-white" />
                     </div>
                     <h3 className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white mb-2 text-center sm:text-left">
                       Аналитика
@@ -367,12 +371,12 @@ export default function HomePage() {
               </div>
             </Link>
 
-            <Link href="/auth/profile">
+            <Link href="auth/profile">
               <div className="group bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-xl sm:rounded-2xl p-5 sm:p-6 shadow-lg border border-gray-100 dark:border-gray-700 hover:shadow-xl transition-all duration-300 hover:scale-[1.02] cursor-pointer h-full">
                 <div className="flex flex-col h-full">
                   <div className="mb-3 sm:mb-4">
                     <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-gradient-to-r from-[#7F1D1D] to-[#DC2626] flex items-center justify-center mb-3 sm:mb-4 mx-auto sm:mx-0">
-                      <span className="text-white text-xl sm:text-2xl">⚙</span>
+                      <Settings className="w-5 h-5 text-white" />
                     </div>
                     <h3 className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white mb-2 text-center sm:text-left">
                       Профиль
@@ -406,36 +410,34 @@ export default function HomePage() {
             </div>
 
             <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-xl sm:rounded-2xl p-5 sm:p-6 shadow-lg border border-gray-100 dark:border-gray-700">
-              <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4 sm:gap-0 mb-4 sm:mb-6">
-                <div className="flex items-center gap-3 sm:gap-4">
-                  <div className="w-10 h-10 rounded-full bg-gradient-to-r from-[#7F1D1D] to-[#DC2626] flex items-center justify-center flex-shrink-0">
-                    <span className="text-white">📔</span>
-                  </div>
-                  <div>
-                    <h3 className="font-bold text-gray-900 dark:text-white text-lg">
-                      {formatDate(latestStory.created_at)}
-                    </h3>
-                    <p className="text-sm text-gray-600 dark:text-gray-400">
-                      {formatTime(latestStory.created_at)}
-                    </p>
-                  </div>
+              <div className="flex items-center gap-3 sm:gap-4 mb-4">
+                <div className="w-10 h-10 rounded-full bg-gradient-to-r from-[#7F1D1D] to-[#DC2626] flex items-center justify-center flex-shrink-0">
+                  <NotebookPen className="w-5 h-5 text-white" />
                 </div>
+                <div>
+                  <h3 className="font-bold text-gray-900 dark:text-white text-lg">
+                    {formatDate(latestStory.created_at)}
+                  </h3>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">
+                    {formatTime(latestStory.created_at)}
+                  </p>
+                </div>
+              </div>
 
-                <div className="flex flex-wrap gap-2 sm:gap-2 justify-start sm:justify-start lg:justify-end mt-3 sm:mt-0">
-                  {latestStory.moods.slice(0, 3).map((mood, i) => (
-                    <span
-                      key={i}
-                      className="px-2 py-1 sm:px-3 sm:py-1 rounded-full bg-gradient-to-r from-[#7F1D1D] to-[#DC2626] text-white text-xs sm:text-sm font-medium"
-                    >
-                      {moodTranslations[mood] || mood}
-                    </span>
-                  ))}
-                  {latestStory.moods.length > 3 && (
-                    <span className="px-2 py-1 sm:px-3 sm:py-1 rounded-full bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 text-xs sm:text-sm font-medium">
-                      +{latestStory.moods.length - 3}
-                    </span>
-                  )}
-                </div>
+              <div className="flex flex-wrap gap-2 mb-4">
+                {latestStory.moods.slice(0, 3).map((mood, i) => (
+                  <span
+                    key={i}
+                    className="px-2 py-1 sm:px-3 sm:py-1 rounded-full bg-gradient-to-r from-[#7F1D1D] to-[#DC2626] text-white text-xs sm:text-sm font-medium"
+                  >
+                    {moodTranslations[mood] || mood}
+                  </span>
+                ))}
+                {latestStory.moods.length > 3 && (
+                  <span className="px-2 py-1 sm:px-3 sm:py-1 rounded-full bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 text-xs sm:text-sm font-medium">
+                    +{latestStory.moods.length - 3}
+                  </span>
+                )}
               </div>
 
               {latestStory.text && (
@@ -473,13 +475,15 @@ export default function HomePage() {
 
               <div className="flex flex-col sm:flex-row gap-2 sm:gap-0 justify-between pt-4 sm:pt-6 border-t border-gray-200 dark:border-gray-700">
                 <Link href={`/stories`} className="w-full sm:w-auto">
-                  <button className="w-full sm:w-auto px-3 py-2 sm:px-4 sm:py-2 bg-gradient-to-r from-[#7F1D1D] to-[#DC2626] text-white rounded-lg sm:rounded-xl font-medium hover:shadow-lg transition-shadow text-sm sm:text-base mb-2 sm:mb-0">
+                  <button className="w-full sm:w-auto px-3 py-2 sm:px-4 sm:py-2 bg-gradient-to-r from-[#7F1D1D] to-[#DC2626] text-white rounded-lg sm:rounded-xl font-medium hover:shadow-lg transition-shadow text-sm sm:text-base flex items-center justify-center gap-2">
+                    <Edit className="w-4 h-4" />
                     Редактировать
                   </button>
                 </Link>
                 <Link href="/stories/create" className="w-full sm:w-auto">
-                  <button className="w-full sm:w-auto px-3 py-2 sm:px-4 sm:py-2 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 rounded-lg sm:rounded-xl font-medium transition-colors text-sm sm:text-base">
-                    + Новая запись
+                  <button className="w-full sm:w-auto px-3 py-2 sm:px-4 sm:py-2 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 rounded-lg sm:rounded-xl font-medium transition-colors text-sm sm:text-base flex items-center justify-center gap-2">
+                    <Plus className="w-4 h-4" />
+                    Новая запись
                   </button>
                 </Link>
               </div>
@@ -487,11 +491,10 @@ export default function HomePage() {
           </section>
         )}
 
-        {/* Призыв к действию если нет записей */}
         {!latestStory && (
           <section className="mb-10 sm:mb-12">
             <div className="bg-gradient-to-r from-[#7F1D1D]/10 to-[#DC2626]/10 dark:from-[#7F1D1D]/20 dark:to-[#DC2626]/20 rounded-xl sm:rounded-2xl p-6 sm:p-8 lg:p-10 text-center">
-              <div className="text-4xl sm:text-5xl mb-4">✨</div>
+              <Sparkles className="w-12 h-12 mx-auto mb-4 text-[#7F1D1D] dark:text-[#f87171]" />
               <h3 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white mb-3 sm:mb-4">
                 Создайте свою первую запись!
               </h3>
@@ -500,35 +503,37 @@ export default function HomePage() {
                 понимать себя и улучшить качество жизни.
               </p>
               <Link href="/stories/create">
-                <button className="px-6 py-2.5 sm:px-8 sm:py-3 bg-gradient-to-r from-[#7F1D1D] to-[#DC2626] text-white rounded-xl font-bold hover:shadow-lg transition-shadow text-base sm:text-lg">
-                  ✐ Начать дневник
+                <button className="px-6 py-2.5 sm:px-8 sm:py-3 bg-gradient-to-r from-[#7F1D1D] to-[#DC2626] text-white rounded-xl font-bold hover:shadow-lg transition-shadow text-base sm:text-lg flex items-center justify-center gap-2 mx-auto">
+                  <PenTool className="w-5 h-5" />
+                  Начать дневник
                 </button>
               </Link>
             </div>
           </section>
         )}
 
-        {/* Баннер аналитики */}
         {analytics && analytics.summary.total_entries > 5 && (
           <section className="mb-6 sm:mb-8">
             <div className="bg-gradient-to-r from-[#7F1D1D] to-[#DC2626] rounded-xl sm:rounded-2xl p-6 sm:p-8 lg:p-10 text-white">
               <div className="flex flex-col lg:flex-row gap-6 sm:gap-8 items-center">
                 <div className="lg:w-2/3">
-                  <h3 className="text-xl sm:text-2xl font-bold mb-3 sm:mb-4">
-                    📈 У вас уже есть данные для анализа!
+                  <h3 className="text-xl sm:text-2xl font-bold mb-3 sm:mb-4 flex items-center gap-2">
+                    <TrendingUp className="w-6 h-6" />У вас уже есть данные для
+                    анализа!
                   </h3>
                   <p className="opacity-90 mb-4 sm:mb-6 text-sm sm:text-base">
                     На основе {analytics.summary.total_entries} записей мы можем
                     показать вам интересные закономерности в вашем настроении.
                   </p>
                   <Link href="/analytics">
-                    <button className="px-4 py-2 sm:px-6 sm:py-3 bg-white/20 hover:bg-white/30 text-white rounded-lg sm:rounded-xl font-bold backdrop-blur-sm transition-colors text-sm sm:text-base">
-                      ✦ Детальная аналитика
+                    <button className="px-4 py-2 sm:px-6 sm:py-3 bg-white/20 hover:bg-white/30 text-white rounded-lg sm:rounded-xl font-bold backdrop-blur-sm transition-colors text-sm sm:text-base flex items-center gap-2">
+                      <ChartNoAxesCombined className="w-4 h-4" />
+                      Детальная аналитика
                     </button>
                   </Link>
                 </div>
                 <div className="lg:w-1/3 text-center lg:text-right">
-                  <div className="text-4xl sm:text-5xl lg:text-6xl">📊</div>
+                  <BarChart className="w-16 h-16 mx-auto lg:mx-0" />
                   <p className="mt-2 sm:mt-4 opacity-80 text-xs sm:text-sm lg:text-base">
                     Откройте инсайты о вашем эмоциональном состоянии
                   </p>

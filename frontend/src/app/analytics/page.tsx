@@ -1,30 +1,85 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo, lazy, Suspense } from "react";
 import Link from "next/link";
 import toast from "react-hot-toast";
-import { useRouter } from "next/navigation";
 import BackToHome from "../components/BackToHome";
 import {
-  LineChart,
-  Line,
-  BarChart,
-  Bar,
-  PieChart,
-  Pie,
-  Cell,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  Legend,
-  ResponsiveContainer,
-  RadarChart,
-  Radar,
-  PolarGrid,
-  PolarAngleAxis,
-  PolarRadiusAxis,
-} from "recharts";
+  BarChart3,
+  Brain,
+  Activity,
+  Clock,
+  BookOpen,
+  Plus,
+  TrendingUp,
+  Sparkles,
+  Calendar,
+} from "lucide-react";
+
+// Ленивая загрузка графиков для уменьшения initial bundle
+import dynamic from "next/dynamic";
+
+const LineChart = dynamic(
+  () => import("recharts").then((mod) => mod.LineChart),
+  { ssr: false },
+);
+const Line = dynamic(() => import("recharts").then((mod) => mod.Line), {
+  ssr: false,
+});
+const BarChart = dynamic(() => import("recharts").then((mod) => mod.BarChart), {
+  ssr: false,
+});
+const Bar = dynamic(() => import("recharts").then((mod) => mod.Bar), {
+  ssr: false,
+});
+const PieChart = dynamic(() => import("recharts").then((mod) => mod.PieChart), {
+  ssr: false,
+});
+const Pie = dynamic(() => import("recharts").then((mod) => mod.Pie), {
+  ssr: false,
+});
+const Cell = dynamic(() => import("recharts").then((mod) => mod.Cell), {
+  ssr: false,
+});
+const XAxis = dynamic(() => import("recharts").then((mod) => mod.XAxis), {
+  ssr: false,
+});
+const YAxis = dynamic(() => import("recharts").then((mod) => mod.YAxis), {
+  ssr: false,
+});
+const CartesianGrid = dynamic(
+  () => import("recharts").then((mod) => mod.CartesianGrid),
+  { ssr: false },
+);
+const Tooltip = dynamic(() => import("recharts").then((mod) => mod.Tooltip), {
+  ssr: false,
+});
+const Legend = dynamic(() => import("recharts").then((mod) => mod.Legend), {
+  ssr: false,
+});
+const ResponsiveContainer = dynamic(
+  () => import("recharts").then((mod) => mod.ResponsiveContainer),
+  { ssr: false },
+);
+const RadarChart = dynamic(
+  () => import("recharts").then((mod) => mod.RadarChart),
+  { ssr: false },
+);
+const Radar = dynamic(() => import("recharts").then((mod) => mod.Radar), {
+  ssr: false,
+});
+const PolarGrid = dynamic(
+  () => import("recharts").then((mod) => mod.PolarGrid),
+  { ssr: false },
+);
+const PolarAngleAxis = dynamic(
+  () => import("recharts").then((mod) => mod.PolarAngleAxis),
+  { ssr: false },
+);
+const PolarRadiusAxis = dynamic(
+  () => import("recharts").then((mod) => mod.PolarRadiusAxis),
+  { ssr: false },
+);
 
 interface AnalyticsData {
   summary: {
@@ -84,7 +139,7 @@ const moodTranslations: Record<string, string> = {
   interest: "интерес",
 };
 
-// Цветовая палитра в вашей гамме
+// Цветовая палитра
 const COLOR_PALETTE = [
   "#7F1D1D",
   "#991B1B",
@@ -103,8 +158,20 @@ const COLOR_PALETTE = [
   "#8B5CF6",
 ];
 
+// Компонент-обёртка для ленивой загрузки графиков
+const ChartWrapper = ({ children }: { children: React.ReactNode }) => (
+  <Suspense
+    fallback={
+      <div className="h-[300px] flex items-center justify-center">
+        Загрузка графика...
+      </div>
+    }
+  >
+    {children}
+  </Suspense>
+);
+
 export default function AnalyticsPage() {
-  const router = useRouter();
   const [analyticsData, setAnalyticsData] = useState<AnalyticsData | null>(
     null,
   );
@@ -120,22 +187,29 @@ export default function AnalyticsPage() {
 
   const loadData = async () => {
     try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 15000);
+
       const [activitiesRes, analyticsRes] = await Promise.all([
         fetch(
-          `${
-            process.env.NEXT_PUBLIC_API_URL || "http://localhost:8001"
-          }/activities`,
-          { credentials: "include" },
+          `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:8001"}/activities`,
+          {
+            credentials: "include",
+            signal: controller.signal,
+          },
         ),
         fetch(
-          `${
-            process.env.NEXT_PUBLIC_API_URL || "http://localhost:8001"
-          }/analytics`,
-          { credentials: "include" },
+          `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:8001"}/analytics`,
+          {
+            credentials: "include",
+            signal: controller.signal,
+          },
         ),
       ]);
 
-      if (!analyticsRes.ok) throw new Error();
+      clearTimeout(timeoutId);
+
+      if (!analyticsRes.ok) throw new Error("Ошибка загрузки аналитики");
 
       const [actsData, analyticsData] = await Promise.all([
         activitiesRes.json(),
@@ -145,47 +219,48 @@ export default function AnalyticsPage() {
       setActivities(actsData);
       setAnalyticsData(analyticsData);
     } catch (err) {
-      toast.error("Ошибка загрузки аналитики");
+      if (err instanceof Error && err.name === "AbortError") {
+        toast.error("Превышено время ожидания");
+      } else {
+        toast.error("Ошибка загрузки аналитики");
+      }
       console.error(err);
     } finally {
       setLoading(false);
     }
   };
 
-  const activityMap = Object.fromEntries(activities.map((a) => [a.id, a.name]));
+  const activityMap = useMemo(
+    () => Object.fromEntries(activities.map((a) => [a.id, a.name])),
+    [activities],
+  );
 
-  // Подготовка данных для графиков
-  const prepareMoodDistributionData = () => {
+  const moodDistributionData = useMemo(() => {
     if (!analyticsData?.mood_distribution) return [];
-
     return Object.entries(analyticsData.mood_distribution)
       .map(([mood, count]) => ({
         name: moodTranslations[mood] || mood,
         value: count,
-        color: COLOR_PALETTE[Math.floor(Math.random() * COLOR_PALETTE.length)],
       }))
       .sort((a, b) => b.value - a.value);
-  };
+  }, [analyticsData?.mood_distribution]);
 
-  const prepareActivityDistributionData = () => {
+  const activityDistributionData = useMemo(() => {
     if (!analyticsData?.activity_distribution) return [];
-
     return Object.entries(analyticsData.activity_distribution)
       .map(([activityId, count]) => ({
         name: activityMap[parseInt(activityId)] || `Активность ${activityId}`,
         value: count,
       }))
       .sort((a, b) => b.value - a.value)
-      .slice(0, 10); // Топ 10 активностей
-  };
+      .slice(0, 10);
+  }, [analyticsData?.activity_distribution, activityMap]);
 
-  const prepareMoodTimelineData = () => {
+  const moodTimelineData = useMemo(() => {
     if (!analyticsData?.moods_over_time) return [];
-
     const entries = Object.entries(analyticsData.moods_over_time);
     if (entries.length === 0) return [];
 
-    // Берем последние 14 дней или все если меньше
     const sortedDates = entries
       .sort(
         ([dateA], [dateB]) =>
@@ -202,7 +277,6 @@ export default function AnalyticsPage() {
       );
       const avgMoodScore =
         moodEntries.reduce((sum, [mood, count]) => {
-          // Простая оценка настроения от 1 до 10
           const moodScore =
             (Object.keys(moodTranslations).indexOf(mood) % 10) + 1;
           return sum + moodScore * count;
@@ -218,209 +292,37 @@ export default function AnalyticsPage() {
         moodCount: totalMoodCount,
       };
     });
-  };
+  }, [analyticsData?.moods_over_time]);
 
-  const prepareWeekdayData = () => {
+  const weekdayData = useMemo(() => {
     if (!analyticsData?.moods_by_weekday) return [];
-
     const weekdays = ["Пн", "Вт", "Ср", "Чт", "Пт", "Сб", "Вс"];
-
     return Object.entries(analyticsData.moods_by_weekday).map(
-      ([weekday, moods]) => {
-        const moodCount = Object.values(moods).reduce(
-          (sum, count) => sum + count,
-          0,
-        );
-        return {
-          day: weekdays[parseInt(weekday)],
-          moodCount,
-          moods: Object.entries(moods).map(([mood, count]) => ({
-            name: moodTranslations[mood] || mood,
-            value: count,
-          })),
-        };
-      },
+      ([weekday, moods]) => ({
+        day: weekdays[parseInt(weekday)],
+        moodCount: Object.values(moods).reduce((sum, count) => sum + count, 0),
+      }),
     );
-  };
+  }, [analyticsData?.moods_by_weekday]);
 
-  const prepareHourlyData = () => {
+  const hourlyData = useMemo(() => {
     if (!analyticsData?.moods_by_hour) return [];
-
     return Object.entries(analyticsData.moods_by_hour).map(([hour, count]) => ({
       hour: `${hour}:00`,
       value: count,
     }));
-  };
+  }, [analyticsData?.moods_by_hour]);
 
-  // Компоненты графиков
-  const MoodDistributionChart = () => {
-    const data = prepareMoodDistributionData();
-    if (data.length === 0)
-      return (
-        <div className="text-gray-500 dark:text-gray-400">
-          Нет данных о настроениях
-        </div>
-      );
-
-    return (
-      <ResponsiveContainer width="100%" height={300}>
-        <PieChart>
-          <Pie
-            data={data}
-            cx="50%"
-            cy="50%"
-            labelLine={false}
-            label={({ name, percent }) =>
-              `${name}: ${(percent * 100).toFixed(0)}%`
-            }
-            outerRadius={80}
-            fill="#8884d8"
-            dataKey="value"
-          >
-            {data.map((entry, index) => (
-              <Cell
-                key={`cell-${index}`}
-                fill={COLOR_PALETTE[index % COLOR_PALETTE.length]}
-              />
-            ))}
-          </Pie>
-          <Tooltip formatter={(value) => [`${value} записей`, "Количество"]} />
-          <Legend />
-        </PieChart>
-      </ResponsiveContainer>
-    );
-  };
-
-  const ActivityDistributionChart = () => {
-    const data = prepareActivityDistributionData();
-    if (data.length === 0)
-      return (
-        <div className="text-gray-500 dark:text-gray-400">
-          Нет данных об активностях
-        </div>
-      );
-
-    return (
-      <ResponsiveContainer width="100%" height={300}>
-        <BarChart data={data}>
-          <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
-          <XAxis dataKey="name" angle={-45} textAnchor="end" height={80} />
-          <YAxis />
-          <Tooltip formatter={(value) => [`${value} раз`, "Количество"]} />
-          <Legend />
-          <Bar dataKey="value" name="Количество" fill="#7F1D1D" />
-        </BarChart>
-      </ResponsiveContainer>
-    );
-  };
-
-  const MoodTimelineChart = () => {
-    const data = prepareMoodTimelineData();
-    if (data.length === 0)
-      return (
-        <div className="text-gray-500 dark:text-gray-400">
-          Нет данных за период
-        </div>
-      );
-
-    return (
-      <ResponsiveContainer width="100%" height={300}>
-        <LineChart data={data}>
-          <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
-          <XAxis dataKey="date" />
-          <YAxis domain={[0, 10]} />
-          <Tooltip
-            formatter={(value) => [`${value}`, "Настроение (1-10)"]}
-            labelFormatter={(label) => `Дата: ${label}`}
-          />
-          <Legend />
-          <Line
-            type="monotone"
-            dataKey="moodScore"
-            name="Уровень настроения"
-            stroke="#DC2626"
-            strokeWidth={3}
-            dot={{ r: 4 }}
-            activeDot={{ r: 6 }}
-          />
-          <Line
-            type="monotone"
-            dataKey="moodCount"
-            name="Количество записей"
-            stroke="#3B82F6"
-            strokeWidth={2}
-            dot={{ r: 3 }}
-          />
-        </LineChart>
-      </ResponsiveContainer>
-    );
-  };
-
-  const WeekdayRadarChart = () => {
-    const data = prepareWeekdayData();
-    if (data.length === 0)
-      return (
-        <div className="text-gray-500 dark:text-gray-400">
-          Нет данных по дням недели
-        </div>
-      );
-
-    return (
-      <ResponsiveContainer width="100%" height={300}>
-        <RadarChart data={data}>
-          <PolarGrid stroke="#374151" />
-          <PolarAngleAxis dataKey="day" stroke="#9CA3AF" />
-          <PolarRadiusAxis stroke="#9CA3AF" />
-          <Radar
-            name="Активность настроений"
-            dataKey="moodCount"
-            stroke="#DC2626"
-            fill="#DC2626"
-            fillOpacity={0.6}
-          />
-          <Legend />
-          <Tooltip
-            formatter={(value) => [`${value} настроений`, "Количество"]}
-          />
-        </RadarChart>
-      </ResponsiveContainer>
-    );
-  };
-
-  const HourlyBarChart = () => {
-    const data = prepareHourlyData();
-    if (data.length === 0)
-      return (
-        <div className="text-gray-500 dark:text-gray-400">
-          Нет данных по времени суток
-        </div>
-      );
-
-    return (
-      <ResponsiveContainer width="100%" height={300}>
-        <BarChart data={data}>
-          <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
-          <XAxis dataKey="hour" />
-          <YAxis />
-          <Tooltip formatter={(value) => [`${value} записей`, "Количество"]} />
-          <Legend />
-          <Bar dataKey="value" name="Записи по часам" fill="#991B1B" />
-        </BarChart>
-      </ResponsiveContainer>
-    );
-  };
-
-  // Статистические карточки
   const StatCard = ({
     title,
     value,
-    icon,
+    icon: Icon,
     color = "#7F1D1D",
     subtitle = "",
   }: {
     title: string;
     value: string | number;
-    icon: string;
+    icon: React.ElementType;
     color?: string;
     subtitle?: string;
   }) => (
@@ -439,7 +341,7 @@ export default function AnalyticsPage() {
             </p>
           )}
         </div>
-        <span className="text-2xl">{icon}</span>
+        <Icon className="w-8 h-8 text-gray-500 dark:text-gray-400" />
       </div>
     </div>
   );
@@ -456,8 +358,9 @@ export default function AnalyticsPage() {
     return (
       <main className="min-h-screen bg-gradient-to-br from-white via-gray-50 to-gray-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
         <div className="container mx-auto px-6 py-8">
+          <BackToHome />
           <div className="max-w-4xl mx-auto text-center">
-            <div className="text-6xl mb-6">📊</div>
+            <BarChart3 className="w-20 h-20 mx-auto mb-6 text-gray-400 dark:text-gray-500" />
             <h1 className="text-4xl font-bold mb-4 bg-gradient-to-r from-[#7F1D1D] to-[#DC2626] bg-clip-text text-transparent">
               АНАЛИТИКА НАСТРОЕНИЯ
             </h1>
@@ -504,14 +407,12 @@ export default function AnalyticsPage() {
 
         {/* Табы навигации */}
         <div className="flex flex-wrap gap-2 mb-8 justify-center">
-          {(
-            [
-              { id: "overview", label: "Обзор", icon: "📈" },
-              { id: "moods", label: "Настроения", icon: "💭" },
-              { id: "activities", label: "Активности", icon: "⚡" },
-              { id: "timeline", label: "Временная шкала", icon: "⏱️" },
-            ] as const
-          ).map((tab) => (
+          {[
+            { id: "overview" as const, label: "Обзор", icon: TrendingUp },
+            { id: "moods" as const, label: "Настроения", icon: Brain },
+            { id: "activities" as const, label: "Активности", icon: Activity },
+            { id: "timeline" as const, label: "Временная шкала", icon: Clock },
+          ].map((tab) => (
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
@@ -521,7 +422,7 @@ export default function AnalyticsPage() {
                   : "bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700"
               }`}
             >
-              <span>{tab.icon}</span>
+              <tab.icon className="w-5 h-5" />
               <span>{tab.label}</span>
             </button>
           ))}
@@ -532,19 +433,19 @@ export default function AnalyticsPage() {
           <StatCard
             title="Всего записей"
             value={analyticsData.summary.total_entries}
-            icon="📊"
+            icon={BarChart3}
             subtitle={`За ${analyticsData.summary.days_active} дней`}
           />
           <StatCard
             title="Самое частое настроение"
             value={topMood}
-            icon="💫"
+            icon={Sparkles}
             color="#DC2626"
           />
           <StatCard
             title="Популярная активность"
             value={topActivity}
-            icon="⚡"
+            icon={Activity}
             color="#991B1B"
           />
           <StatCard
@@ -552,142 +453,171 @@ export default function AnalyticsPage() {
             value={new Date(
               analyticsData.summary.first_entry,
             ).toLocaleDateString("ru-RU")}
-            icon="📅"
+            icon={Calendar}
             color="#B91C1C"
           />
         </div>
 
         {/* Контент вкладок */}
-        {activeTab === "overview" && (
-          <div className="space-y-8">
-            <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-2xl p-6 shadow-2xl border border-gray-100 dark:border-gray-700">
-              <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-6 flex items-center gap-2">
-                <span>📊</span>
-                Распределение настроений
-              </h3>
-              <MoodDistributionChart />
-            </div>
-
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-              <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-2xl p-6 shadow-2xl border border-gray-100 dark:border-gray-700">
-                <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-6 flex items-center gap-2">
-                  <span>⏱️</span>
-                  Активность по дням недели
-                </h3>
-                <WeekdayRadarChart />
-              </div>
-
-              <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-2xl p-6 shadow-2xl border border-gray-100 dark:border-gray-700">
-                <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-6 flex items-center gap-2">
-                  <span>🕒</span>
-                  Записи по времени суток
-                </h3>
-                <HourlyBarChart />
-              </div>
-            </div>
-          </div>
-        )}
-
-        {activeTab === "moods" && (
-          <div className="space-y-8">
+        <div className="space-y-8">
+          {(activeTab === "overview" || activeTab === "moods") && (
             <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-2xl p-6 shadow-2xl border border-gray-100 dark:border-gray-700">
               <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-6">
-                Детальный анализ настроений
+                {activeTab === "overview"
+                  ? "Распределение настроений"
+                  : "Детальный анализ настроений"}
               </h3>
-              <MoodDistributionChart />
+              <ChartWrapper>
+                <ResponsiveContainer width="100%" height={300}>
+                  <PieChart>
+                    <Pie
+                      data={moodDistributionData}
+                      cx="50%"
+                      cy="50%"
+                      labelLine={false}
+                      label={({ name, percent }) =>
+                        `${name}: ${(percent * 100).toFixed(0)}%`
+                      }
+                      outerRadius={80}
+                      dataKey="value"
+                    >
+                      {moodDistributionData.map((_, index) => (
+                        <Cell
+                          key={`cell-${index}`}
+                          fill={COLOR_PALETTE[index % COLOR_PALETTE.length]}
+                        />
+                      ))}
+                    </Pie>
+                    <Tooltip
+                      formatter={(value) => [`${value} записей`, "Количество"]}
+                    />
+                    <Legend />
+                  </PieChart>
+                </ResponsiveContainer>
+              </ChartWrapper>
             </div>
+          )}
 
+          {(activeTab === "overview" || activeTab === "timeline") && (
             <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-2xl p-6 shadow-2xl border border-gray-100 dark:border-gray-700">
               <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-6">
                 Динамика настроения
               </h3>
-              <MoodTimelineChart />
+              <ChartWrapper>
+                <ResponsiveContainer width="100%" height={300}>
+                  <LineChart data={moodTimelineData}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
+                    <XAxis dataKey="date" />
+                    <YAxis domain={[0, 10]} />
+                    <Tooltip
+                      formatter={(value) => [`${value}`, "Настроение (1-10)"]}
+                    />
+                    <Legend />
+                    <Line
+                      type="monotone"
+                      dataKey="moodScore"
+                      name="Уровень настроения"
+                      stroke="#DC2626"
+                      strokeWidth={3}
+                      dot={{ r: 4 }}
+                    />
+                  </LineChart>
+                </ResponsiveContainer>
+              </ChartWrapper>
             </div>
-          </div>
-        )}
+          )}
 
-        {activeTab === "activities" && (
-          <div className="space-y-8">
+          {activeTab === "activities" && (
             <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-2xl p-6 shadow-2xl border border-gray-100 dark:border-gray-700">
               <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-6">
                 Распределение активностей
               </h3>
-              <ActivityDistributionChart />
+              <ChartWrapper>
+                <ResponsiveContainer width="100%" height={300}>
+                  <BarChart data={activityDistributionData}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
+                    <XAxis
+                      dataKey="name"
+                      angle={-45}
+                      textAnchor="end"
+                      height={80}
+                    />
+                    <YAxis />
+                    <Tooltip
+                      formatter={(value) => [`${value} раз`, "Количество"]}
+                    />
+                    <Bar dataKey="value" name="Количество" fill="#7F1D1D" />
+                  </BarChart>
+                </ResponsiveContainer>
+              </ChartWrapper>
             </div>
+          )}
 
-            {prepareActivityDistributionData().length > 0 && (
-              <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-2xl p-6 shadow-2xl border border-gray-100 dark:border-gray-700">
-                <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-6">
-                  Топ активностей
-                </h3>
-                <div className="space-y-3">
-                  {prepareActivityDistributionData().map((activity, index) => (
-                    <div
-                      key={index}
-                      className="flex items-center justify-between p-3 rounded-lg bg-gray-50 dark:bg-gray-700/50"
-                    >
-                      <div className="flex items-center gap-3">
-                        <div
-                          className="w-8 h-8 rounded-full flex items-center justify-center text-white font-bold"
-                          style={{
-                            backgroundColor:
-                              COLOR_PALETTE[index % COLOR_PALETTE.length],
-                          }}
-                        >
-                          {index + 1}
-                        </div>
-                        <span className="font-medium text-gray-800 dark:text-white">
-                          {activity.name}
-                        </span>
-                      </div>
-                      <span className="font-bold text-[#7F1D1D] dark:text-[#f87171]">
-                        {activity.value} раз
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-          </div>
-        )}
-
-        {activeTab === "timeline" && (
-          <div className="space-y-8">
-            <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-2xl p-6 shadow-2xl border border-gray-100 dark:border-gray-700">
-              <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-6">
-                Динамика настроения по времени
-              </h3>
-              <MoodTimelineChart />
-            </div>
-
+          {(activeTab === "overview" || activeTab === "timeline") && (
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
               <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-2xl p-6 shadow-2xl border border-gray-100 dark:border-gray-700">
                 <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-6">
-                  По дням недели
+                  Активность по дням недели
                 </h3>
-                <WeekdayRadarChart />
+                <ChartWrapper>
+                  <ResponsiveContainer width="100%" height={300}>
+                    <RadarChart data={weekdayData}>
+                      <PolarGrid stroke="#374151" />
+                      <PolarAngleAxis dataKey="day" stroke="#9CA3AF" />
+                      <PolarRadiusAxis stroke="#9CA3AF" />
+                      <Radar
+                        name="Активность"
+                        dataKey="moodCount"
+                        stroke="#DC2626"
+                        fill="#DC2626"
+                        fillOpacity={0.6}
+                      />
+                      <Tooltip />
+                    </RadarChart>
+                  </ResponsiveContainer>
+                </ChartWrapper>
               </div>
 
               <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-2xl p-6 shadow-2xl border border-gray-100 dark:border-gray-700">
                 <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-6">
-                  По часам дня
+                  Записи по времени суток
                 </h3>
-                <HourlyBarChart />
+                <ChartWrapper>
+                  <ResponsiveContainer width="100%" height={300}>
+                    <BarChart data={hourlyData}>
+                      <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
+                      <XAxis dataKey="hour" />
+                      <YAxis />
+                      <Tooltip
+                        formatter={(value) => [
+                          `${value} записей`,
+                          "Количество",
+                        ]}
+                      />
+                      <Bar
+                        dataKey="value"
+                        name="Записи по часам"
+                        fill="#991B1B"
+                      />
+                    </BarChart>
+                  </ResponsiveContainer>
+                </ChartWrapper>
               </div>
             </div>
-          </div>
-        )}
+          )}
+        </div>
 
-        {/* Кнопка действий */}
+        {/* Кнопки действий */}
         <div className="mt-12 text-center">
           <Link href="/stories">
-            <button className="px-8 py-3 bg-gradient-to-r from-[#7F1D1D] to-[#DC2626] text-white rounded-xl font-bold hover:shadow-lg transition-shadow mr-4">
-              📋 К истории записей
+            <button className="inline-flex items-center gap-2 px-8 py-3 bg-gradient-to-r from-[#7F1D1D] to-[#DC2626] text-white rounded-xl font-bold hover:shadow-lg transition-shadow mr-4">
+              <BookOpen className="w-5 h-5" />К истории записей
             </button>
           </Link>
           <Link href="/stories/create">
-            <button className="px-8 py-3 bg-gray-200 dark:bg-gray-800 text-gray-800 dark:text-white rounded-xl font-bold hover:bg-gray-300 dark:hover:bg-gray-700 transition-colors">
-              ➕ Добавить запись
+            <button className="inline-flex items-center gap-2 px-8 py-3 bg-gray-200 dark:bg-gray-800 text-gray-800 dark:text-white rounded-xl font-bold hover:bg-gray-300 dark:hover:bg-gray-700 transition-colors">
+              <Plus className="w-5 h-5" />
+              Добавить запись
             </button>
           </Link>
         </div>

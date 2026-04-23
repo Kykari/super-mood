@@ -1,5 +1,5 @@
 # backend/app/models/user.py
-from sqlalchemy import String, Integer, DateTime, func
+from sqlalchemy import String, Integer, DateTime, Boolean, func
 from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy.types import Enum as SQLAEnum
 from enum import StrEnum
@@ -10,9 +10,8 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy import Column
 
 class UserRole(StrEnum):
-    USER = "user"          
-    PSYCHOLOGIST = "psychologist"  
-    ADMIN = "admin"        
+    USER = "USER"          
+    ADMIN = "ADMIN"        
 
 class User(Base):
     __tablename__ = "users"
@@ -35,6 +34,8 @@ class User(Base):
         nullable=False
     )
     
+    is_active: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
+    
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
         server_default=func.now(),
@@ -42,7 +43,7 @@ class User(Base):
     )
 
     bio = Column(String, nullable=True, default=None)
-    avatar_url = Column(String(500), nullable=True, default=None)  # <-- ДОБАВИТЬ ЭТУ СТРОКУ
+    avatar_url = Column(String(500), nullable=True, default=None)
     
     stories: Mapped[list[MoodStory]] = relationship("MoodStory", back_populates="user", cascade="all, delete-orphan")
     
@@ -50,3 +51,5 @@ class User(Base):
         return f"<User {self.username} ({self.role})>"
     
     analytics = relationship("UserAnalytics", uselist=False, cascade="all, delete-orphan")
+
+    blocked_reason = Column(String(500), nullable=True, default=None)

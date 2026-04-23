@@ -90,7 +90,7 @@ export default function Register() {
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <section className="min-h-screen flex items-center justify-center py-6 sm:py-8">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 xl:gap-16 items-center max-w-6xl w-full">
-            <div className="order-2 lg:order-1">
+            <div className="order-2 lg:order-1 hidden md:block">
               <div className="relative mx-auto max-w-[280px] sm:max-w-[320px] lg:max-w-full">
                 <Image
                   src="/dogSit.png"

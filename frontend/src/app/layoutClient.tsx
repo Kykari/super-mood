@@ -26,7 +26,10 @@ export default function LayoutClient({
     return () => window.removeEventListener("resize", checkMobile);
   }, []);
 
-  const noLayoutPages = ["/auth/login", "/auth/register", "/admin"];
+  // Админ-панель - отдельный лейаут без хедера/футера/меню
+  const isAdminPage = pathname.startsWith("/admin");
+
+  const noLayoutPages = ["/auth/login", "/auth/register"];
   const shouldHideLayout = noLayoutPages.includes(pathname);
 
   useEffect(() => {
@@ -46,7 +49,13 @@ export default function LayoutClient({
       const authenticated = res.ok;
       setIsAuthenticated(authenticated);
 
-      const protectedPages = ["/home", "/stories", "/analytics", "/profile"];
+      const protectedPages = [
+        "/home",
+        "/stories",
+        "/analytics",
+        "/profile",
+        "/admin",
+      ];
       if (!authenticated && protectedPages.includes(pathname)) {
         router.push("/auth/login");
       }
@@ -58,12 +67,36 @@ export default function LayoutClient({
 
   if (
     isAuthenticated === null &&
-    ["/home", "/stories", "/analytics", "/profile"].includes(pathname)
+    ["/home", "/stories", "/analytics", "/profile", "/admin"].includes(pathname)
   ) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#7F1D1D]"></div>
       </div>
+    );
+  }
+
+  // Админ-панель или страницы без лейаута
+  if (isAdminPage || shouldHideLayout) {
+    return (
+      <>
+        {children}
+        <Toaster
+          position="top-center"
+          toastOptions={{
+            duration: 5000,
+            style: {
+              background: "rgb(31 41 55)",
+              color: "#fff",
+              borderRadius: "16px",
+              padding: "16px 24px",
+              fontSize: "16px",
+            },
+            success: { style: { background: "rgb(34 197 94)" } },
+            error: { style: { background: "rgb(239 68 68)" } },
+          }}
+        />
+      </>
     );
   }
 
@@ -94,15 +127,9 @@ export default function LayoutClient({
 
   return (
     <>
-      {shouldHideLayout ? (
-        <>{children}</>
-      ) : (
-        <>
-          <Header />
-          <main className="flex-1">{children}</main>
-          <Footer />
-        </>
-      )}
+      <Header />
+      <main className="flex-1">{children}</main>
+      <Footer />
       <Toaster
         position="top-center"
         toastOptions={{

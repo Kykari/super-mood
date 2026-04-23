@@ -21,9 +21,7 @@ export default function Login() {
 
     try {
       const res = await fetch(
-        `${
-          process.env.NEXT_PUBLIC_API_URL || "http://localhost:8001"
-        }/auth/login`,
+        `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:8001"}/auth/login`,
         {
           method: "POST",
           headers: {
@@ -36,21 +34,43 @@ export default function Login() {
 
       if (!res.ok) {
         const error = await res.json();
+        // Сообщение о блокировке показываем как обычный toast.error
         toast.error(error.detail || "Неверный логин или пароль");
+        setLoading(false);
         return;
       }
 
-      const result = await res.json();
-      console.log("Логин успешен:", result);
+      // Проверяем, активен ли пользователь (не заблокирован)
+      const profileRes = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:8001"}/auth/profile`,
+        {
+          credentials: "include",
+        },
+      );
+
+      if (!profileRes.ok) {
+        const error = await profileRes.json();
+        toast.error(error.detail || "Доступ запрещён", { duration: 8000 });
+        // Удаляем токен
+        await fetch(
+          `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:8001"}/auth/logout`,
+          {
+            method: "POST",
+            credentials: "include",
+          },
+        );
+        setLoading(false);
+        return;
+      }
 
       toast.success("Добро пожаловать обратно!");
-
       setTimeout(() => {
         router.push("/home");
       }, 1000);
     } catch (err) {
       console.error("Ошибка логина:", err);
       toast.error("Сервер недоступен");
+      setLoading(false);
     } finally {
       setLoading(false);
     }
@@ -61,8 +81,7 @@ export default function Login() {
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <section className="min-h-screen flex items-center justify-center py-6 sm:py-8">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 xl:gap-16 items-center max-w-6xl w-full">
-            {/* Изображение таксы */}
-            <div className="order-2 lg:order-1">
+            <div className="order-2 lg:order-1 hidden md:block">
               <div className="relative mx-auto max-w-[280px] sm:max-w-[320px] lg:max-w-full">
                 <Image
                   src="/dogSit.png"
@@ -75,7 +94,6 @@ export default function Login() {
               </div>
             </div>
 
-            {/* Форма логина */}
             <div className="order-1 lg:order-2">
               <div className="text-center mb-6 sm:mb-8">
                 <Link href="/" className="inline-block mb-2">
@@ -124,15 +142,6 @@ export default function Login() {
                   </div>
 
                   <div className="flex items-center justify-between">
-                    <label className="flex items-center">
-                      <input
-                        type="checkbox"
-                        className="w-4 h-4 text-[#7F1D1D] rounded focus:ring-[#7F1D1D] border-gray-300"
-                      />
-                      <span className="ml-2 text-sm text-gray-600 dark:text-gray-300">
-                        Запомнить меня
-                      </span>
-                    </label>
 
                     <Link
                       href="#"
@@ -171,12 +180,6 @@ export default function Login() {
                     ← Вернуться на главную
                   </Link>
                 </div>
-              </div>
-
-              <div className="mt-6 text-center">
-                <p className="text-xs text-gray-500 dark:text-gray-400">
-                  Входя в аккаунт, вы соглашаетесь с нашими условиями
-                </p>
               </div>
             </div>
           </div>

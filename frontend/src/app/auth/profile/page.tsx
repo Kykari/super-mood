@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 import toast from "react-hot-toast";
@@ -15,6 +16,7 @@ import {
   LogOut,
   Sun,
   Moon,
+  Shield,
 } from "lucide-react";
 import { useTheme } from "../../contexts/ThemeContext";
 
@@ -24,6 +26,7 @@ interface UserData {
   email: string;
   bio: string | null;
   avatar_url: string | null;
+  role: string;
 }
 
 export default function ProfilePage() {
@@ -62,6 +65,7 @@ export default function ProfilePage() {
           email: data.email,
           bio: data.bio || "",
           avatar_url: data.avatar_url || null,
+          role: data.role || "USER",
         };
         setUser(userData);
         setOriginalUser(userData);
@@ -267,7 +271,7 @@ export default function ProfilePage() {
       localStorage.clear();
       sessionStorage.clear();
       toast.success("Вы вышли из аккаунта");
-      router.push("/");
+      router.push("/auth/login");
       router.refresh();
     } catch (error) {
       toast.error("Ошибка при выходе");
@@ -338,6 +342,16 @@ export default function ProfilePage() {
               <Moon className="w-5 h-5" />
             )}
           </button>
+
+          {/* Кнопка админ-панели — только для админов */}
+          {user.role === "ADMIN" && (
+            <Link href="/admin">
+              <button className="p-2 rounded-xl bg-gray-100 dark:bg-gray-800">
+                <Shield className="w-5 h-5" />
+              </button>
+            </Link>
+          )}
+
           <button
             onClick={handleLogout}
             className="p-2 rounded-xl bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400"

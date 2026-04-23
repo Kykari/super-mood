@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useState, useEffect, useCallback } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { useTheme } from "../contexts/ThemeContext";
-import { LogOut, User, Menu, X, Sun, Moon } from "lucide-react";
+import { LogOut, User, Menu, X, Sun, Moon, Shield } from "lucide-react";
 import toast from "react-hot-toast";
 
 export default function Header() {
@@ -12,6 +12,7 @@ export default function Header() {
   const pathname = usePathname();
   const { isDark, toggleTheme } = useTheme();
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
   const [loading, setLoading] = useState(true);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
@@ -26,9 +27,17 @@ export default function Header() {
         },
       );
       setIsAuthenticated(res.ok);
+
+      if (res.ok) {
+        const userData = await res.json();
+        setIsAdmin(userData.role === "ADMIN");
+      } else {
+        setIsAdmin(false);
+      }
     } catch (error) {
       console.error("Auth check error:", error);
       setIsAuthenticated(false);
+      setIsAdmin(false);
     } finally {
       setLoading(false);
     }
@@ -60,10 +69,11 @@ export default function Header() {
       sessionStorage.clear();
 
       setIsAuthenticated(false);
+      setIsAdmin(false);
       setIsMobileMenuOpen(false);
       toast.success("Вы вышли из аккаунта");
 
-      router.push("/");
+      router.push("/auth/login");
       router.refresh();
     } catch (error) {
       console.error("Logout error:", error);
@@ -142,6 +152,15 @@ export default function Header() {
           <div className="hidden lg:flex items-center gap-4">
             {isAuthenticated ? (
               <>
+                {/* Кнопка админ-панели (только для админов) */}
+                {isAdmin && (
+                  <Link href="/admin" className="group relative">
+                    <div className="bg-white/20 hover:bg-white/30 p-2 rounded-xl transition-all duration-300 group-hover:scale-110 backdrop-blur-sm border border-white/20">
+                      <Shield className="w-5 h-5 text-white" />
+                    </div>
+                  </Link>
+                )}
+
                 <button
                   onClick={handleLogout}
                   className="group relative p-2 hover:bg-white/20 rounded-xl transition-all duration-300 backdrop-blur-sm border border-white/20"
@@ -190,6 +209,19 @@ export default function Header() {
                   <span className="text-white font-medium">Профиль</span>
                   <span className="text-white/60">→</span>
                 </Link>
+
+                {/* Кнопка админ-панели в мобильном меню (только для админов) */}
+                {isAdmin && (
+                  <Link
+                    href="/admin"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className="flex items-center justify-between p-3 hover:bg-white/20 rounded-xl"
+                  >
+                    <span className="text-white font-medium">Админ-панель</span>
+                    <span className="text-white/60">→</span>
+                  </Link>
+                )}
+
                 <button
                   onClick={handleLogout}
                   className="w-full flex items-center justify-between p-3 hover:bg-white/20 rounded-xl"

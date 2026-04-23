@@ -36,7 +36,7 @@ export default function Home() {
   return (
     <main className="bg-gradient-to-br from-white via-gray-50 to-gray-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 theme-transition">
       <div className="container mx-auto">
-        <section className="min-h-screen flex items-center justify-center px-6 sm:px-8 lg:px-20 pt-32 pb-20 ">
+        <section className="min-h-screen flex items-center justify-center px-6 sm:px-8 lg:px-20 pt-20 pb-20">
           <div className="container mx-auto">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-10 items-center">
               <div className="animate-fade-in-up">

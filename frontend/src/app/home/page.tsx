@@ -200,23 +200,11 @@ export default function HomePage() {
 
   return (
     <main className="bg-gradient-to-br from-white via-gray-50 to-gray-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 min-h-screen">
-      <div className="container mx-auto px-4 sm:px-6 py-10 sm:py-8 pt-24 sm:pt-28">
+      <div className="container mx-auto px-4 sm:px-6 py-6 sm:py-8 pt-20 sm:pt-24">
         <section className="mb-10 sm:mb-12">
           <div className="flex flex-col lg:flex-row lg:items-center gap-6 sm:gap-8 lg:gap-10">
-            <div className="order-1 lg:order-1 lg:w-2/5">
-              <div className="relative mx-auto max-w-[280px] sm:max-w-[320px] lg:max-w-full">
-                <Image
-                  src="/dogAsk.png"
-                  alt="Такса"
-                  width={400}
-                  height={400}
-                  className="relative w-full h-auto"
-                  priority
-                />
-              </div>
-            </div>
-
-            <div className="order-2 lg:order-2 lg:w-3/5">
+            {/* Приветствие и статистика — первый на мобилке, второй на десктопе */}
+            <div className="order-1 lg:order-2 lg:w-3/5">
               <div className="text-center lg:text-left">
                 <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black mb-3 sm:mb-4">
                   <span className="bg-gradient-to-r from-[#7F1D1D] to-[#DC2626] bg-clip-text text-transparent">
@@ -290,6 +278,19 @@ export default function HomePage() {
                   </Link>
                 </div>
               )}
+            </div>
+
+            <div className="order-2 lg:order-1 lg:w-2/5">
+              <div className="relative mx-auto max-w-[280px] sm:max-w-[320px] lg:max-w-full">
+                <Image
+                  src="/dogAsk.png"
+                  alt="Такса"
+                  width={400}
+                  height={400}
+                  className="relative w-full h-auto"
+                  priority
+                />
+              </div>
             </div>
           </div>
         </section>

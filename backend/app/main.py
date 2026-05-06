@@ -8,6 +8,7 @@ from routes.consultation import router as consultation_router
 from routes.activity import router as activity_router
 from routes import profile
 from routes import admin
+import os
 
 from database import init_db
 
@@ -17,10 +18,7 @@ app = FastAPI(
     version="0.1.0"
 )
 
-origins = [
-    "http://localhost:3000",
-    "http://127.0.0.1:3000",
-]
+origins = os.getenv("ALLOWED_ORIGINS", "http://localhost:3000").split(",")
 
 app.add_middleware(
     CORSMiddleware,

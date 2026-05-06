@@ -17,6 +17,7 @@ import {
   NotebookPen,
   ChartNoAxesCombined,
 } from "lucide-react";
+import Insights from "../components/Insights";
 
 interface User {
   id: number;
@@ -294,7 +295,6 @@ export default function HomePage() {
             </div>
           </div>
         </section>
-
         <section className="mb-10 sm:mb-12">
           <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white mb-4 sm:mb-6">
             Быстрые действия
@@ -514,34 +514,7 @@ export default function HomePage() {
         )}
 
         {analytics && analytics.summary.total_entries > 5 && (
-          <section className="mb-6 sm:mb-8">
-            <div className="bg-gradient-to-r from-[#7F1D1D] to-[#DC2626] rounded-xl sm:rounded-2xl p-6 sm:p-8 lg:p-10 text-white">
-              <div className="flex flex-col lg:flex-row gap-6 sm:gap-8 items-center">
-                <div className="lg:w-2/3">
-                  <h3 className="text-xl sm:text-2xl font-bold mb-3 sm:mb-4 flex items-center gap-2">
-                    <TrendingUp className="w-6 h-6" />У вас уже есть данные для
-                    анализа!
-                  </h3>
-                  <p className="opacity-90 mb-4 sm:mb-6 text-sm sm:text-base">
-                    На основе {analytics.summary.total_entries} записей мы можем
-                    показать вам интересные закономерности в вашем настроении.
-                  </p>
-                  <Link href="/analytics">
-                    <button className="px-4 py-2 sm:px-6 sm:py-3 bg-white/20 hover:bg-white/30 text-white rounded-lg sm:rounded-xl font-bold backdrop-blur-sm transition-colors text-sm sm:text-base flex items-center gap-2">
-                      <ChartNoAxesCombined className="w-4 h-4" />
-                      Детальная аналитика
-                    </button>
-                  </Link>
-                </div>
-                <div className="lg:w-1/3 text-center lg:text-right">
-                  <BarChart className="w-16 h-16 mx-auto lg:mx-0" />
-                  <p className="mt-2 sm:mt-4 opacity-80 text-xs sm:text-sm lg:text-base">
-                    Откройте инсайты о вашем эмоциональном состоянии
-                  </p>
-                </div>
-              </div>
-            </div>
-          </section>
+          <Insights userId={user?.id || 0} />
         )}
       </div>
     </main>

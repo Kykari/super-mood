@@ -29,7 +29,12 @@ export default function LayoutClient({
   // Админ-панель - отдельный лейаут без хедера/футера/меню
   const isAdminPage = pathname.startsWith("/admin");
 
-  const noLayoutPages = ["/auth/login", "/auth/register"];
+  const noLayoutPages = [
+    "/auth/login",
+    "/auth/register",
+    "/auth/forgot-password",
+    "/auth/reset-password",
+  ];
   const shouldHideLayout = noLayoutPages.includes(pathname);
 
   useEffect(() => {

@@ -142,9 +142,8 @@ export default function Login() {
                   </div>
 
                   <div className="flex items-center justify-between">
-
                     <Link
-                      href="#"
+                      href="/auth/forgot-password"
                       className="text-sm text-[#7F1D1D] dark:text-[#f87171] hover:underline"
                     >
                       Забыли пароль?

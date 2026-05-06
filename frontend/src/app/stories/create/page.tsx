@@ -12,8 +12,6 @@ import {
   Trash2,
   Sparkles,
   Activity,
-  PenLine,
-  Image as ImageIcon,
   Check,
   Laptop,
   Phone,
@@ -51,14 +49,12 @@ import {
   Brush,
   Shirt,
   Leaf,
-  Mic,
   Home,
   Notebook,
   CalendarDays,
   Languages,
   DollarSign,
   Newspaper,
-  Plus,
 } from "lucide-react";
 
 interface Activity {
@@ -128,6 +124,25 @@ const activityIconMap: Record<string, any> = {
   "Полезное чтение": Newspaper,
 };
 
+// Маппинг категорий на иконки
+const categoryIconMap: Record<string, any> = {
+  Спорт: Dumbbell,
+  Хобби: Paintbrush,
+  Работа: Laptop,
+  Отдых: Sofa,
+  Здоровье: Brain,
+  Еда: Utensils,
+  Общение: Users,
+  Творчество: PenTool,
+  Дом: Home,
+  Развлечения: Tv,
+  Природа: Trees,
+  Образование: Book,
+  Путешествия: Mountain,
+  Финансы: DollarSign,
+  Медитация: Flower,
+};
+
 export default function CreateEntry() {
   const router = useRouter();
 
@@ -155,6 +170,19 @@ export default function CreateEntry() {
         setLoading(false);
       });
   }, []);
+
+  // Группировка активностей по категориям
+  const groupedActivities = activities.reduce(
+    (acc, activity) => {
+      const category = activity.category;
+      if (!acc[category]) {
+        acc[category] = [];
+      }
+      acc[category].push(activity);
+      return acc;
+    },
+    {} as Record<string, Activity[]>,
+  );
 
   const toggleEmotion = (emotion: string) => {
     setSelectedEmotions((prev) =>
@@ -218,24 +246,17 @@ export default function CreateEntry() {
 
       if (!res.ok) {
         const err = await res.json();
-        console.error("Ошибка бэкенда:", err);
         throw new Error(err.detail || "Не удалось сохранить");
       }
 
-      const data = await res.json();
-      console.log("Успешно сохранено:", data);
-
       await fetch(
         `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:8001"}/analytics?force=true`,
-        {
-          credentials: "include",
-        },
+        { credentials: "include" },
       );
 
       toast.success("Запись сохранена!");
       router.push("/home");
     } catch (err) {
-      console.error("Ошибка сохранения:", err);
       toast.error("Ошибка сохранения");
     }
   };
@@ -247,130 +268,224 @@ export default function CreateEntry() {
 
   if (loading)
     return (
-      <div className="min-h-screen flex items-center justify-center text-2xl">
+      <div className="min-h-screen flex items-center justify-center text-lg dark:text-white">
         Загрузка...
       </div>
     );
 
   return (
-    <main className="min-h-screen bg-gradient-to-br from-white to-gray-50 dark:from-gray-900 dark:to-black py-8">
+    <main className="min-h-screen bg-gradient-to-br from-white to-gray-50 dark:from-gray-900 dark:to-black py-3 pb-20">
       <BackToHome />
-      <div className="max-w-4xl mx-auto px-6">
+      <div className="max-w-5xl mx-auto px-3">
         {/* Прогресс */}
-        <div className="mb-5">
-          <div className="bg-gray-200 dark:bg-gray-700 h-3 rounded-full overflow-hidden">
+        <div className="mb-4">
+          <div className="bg-gray-200 dark:bg-gray-700 h-1.5 rounded-full overflow-hidden">
             <div
-              className="h-full bg-gradient-to-r from-red-700 to-red-500 transition-all duration-500"
+              className="h-full bg-gradient-to-r from-red-600 to-red-500 transition-all duration-500 rounded-full"
               style={{ width: `${((step + 1) / questions.length) * 100}%` }}
             />
           </div>
+          <p className="text-xs text-gray-500 dark:text-gray-400 text-center mt-1">
+            Шаг {step + 1} / {questions.length}
+          </p>
         </div>
 
-        <h1 className="text-4xl font-bold text-center mb-12 bg-gradient-to-r from-red-700 to-red-500 bg-clip-text text-transparent flex items-center justify-center gap-2">
-          <Sparkles className="w-8 h-8" />
+        <h1 className="text-2xl font-bold text-center mb-4 bg-gradient-to-r from-red-700 to-red-500 bg-clip-text text-transparent flex items-center justify-center gap-1.5">
+          <Sparkles className="w-5 h-5" />
           Новая запись
         </h1>
 
         {/* Шаг 1 — Эмоции */}
         {step === 0 && (
-          <div className="bg-white dark:bg-gray-800 rounded-3xl p-8 shadow-2xl">
-            <h2 className="text-3xl font-bold dark:text-white text-center mb-8">
+          <div className="bg-white dark:bg-gray-800 rounded-xl p-4 shadow-lg">
+            <h2 className="text-xl font-bold dark:text-white text-center mb-1">
               {questions[0].title}
             </h2>
+            <p className="text-xs text-center text-gray-500 dark:text-gray-400 mb-4">
+              {questions[0].subtitle}
+            </p>
             <EmotionWheel
               selectedEmotions={selectedEmotions}
               onEmotionSelect={toggleEmotion}
               maxSelections={3}
             />
+            {selectedEmotions.length > 0 && (
+              <div className="mt-3 text-center text-xs text-gray-500 dark:text-gray-400">
+                Выбрано: {selectedEmotions.length}/3
+              </div>
+            )}
           </div>
         )}
 
-        {/* Шаг 2 — Активности с иконками */}
+        {/* Шаг 2 — Активности */}
         {step === 1 && (
-          <div className="bg-white dark:bg-gray-800 rounded-3xl p-8 shadow-2xl">
-            <h2 className="text-3xl font-bold text-center mb-8">
+          <div className="bg-white dark:bg-gray-800 rounded-xl p-4 shadow-lg">
+            <h2 className="text-xl font-bold dark:text-white text-center mb-1">
               {questions[1].title}
             </h2>
-            <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-6 gap-6">
-              {activities.map((act) => {
-                const IconComponent = activityIconMap[act.name] || Activity;
-                const isSelected = selectedActivities.includes(act.id);
-                return (
-                  <button
-                    key={act.id}
-                    onClick={() => toggleActivity(act.id)}
-                    className={`p-6 rounded-3xl border-4 transition-all flex flex-col items-center gap-3
-                      ${
-                        isSelected
-                          ? "border-red-600 bg-red-50 dark:bg-red-900/30 shadow-xl scale-105"
-                          : "border-gray-300 dark:border-gray-600 hover:border-red-400"
-                      }`}
-                  >
-                    <IconComponent className="w-12 h-12 text-gray-700 dark:text-gray-300" />
-                    <p className="text-sm font-medium text-center">
-                      {act.name}
-                    </p>
-                    {isSelected && (
-                      <Check className="w-5 h-5 text-red-600 absolute top-2 right-2" />
-                    )}
-                  </button>
-                );
-              })}
-            </div>
+            <p className="text-xs text-center text-gray-500 dark:text-gray-400 mb-4">
+              {questions[1].subtitle}
+            </p>
+
+            {Object.keys(groupedActivities).length === 0 ? (
+              <div className="text-center py-8 text-sm text-gray-500 dark:text-gray-400">
+                Нет доступных активностей
+              </div>
+            ) : (
+              <div className="space-y-5 max-h-[60vh] overflow-y-auto pr-1">
+                {Object.entries(groupedActivities)
+                  .sort(([a], [b]) => a.localeCompare(b))
+                  .map(([category, categoryActivities]) => {
+                    const CategoryIcon = categoryIconMap[category] || Activity;
+
+                    return (
+                      <div key={category} className="space-y-2.5">
+                        {/* Заголовок категории */}
+                        <div className="flex items-center gap-2 border-b border-gray-200 dark:border-gray-700 pb-1">
+                          <CategoryIcon className="w-4 h-4 text-red-500" />
+                          <h3 className="text-sm font-semibold text-gray-800 dark:text-gray-200">
+                            {category}
+                          </h3>
+                          <span className="text-[10px] text-gray-400 ml-auto bg-gray-100 dark:bg-gray-700 px-1.5 py-0.5 rounded-full">
+                            {categoryActivities.length}
+                          </span>
+                        </div>
+
+                        {/* Активности */}
+                        <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-2">
+                          {categoryActivities.map((act) => {
+                            const IconComponent =
+                              activityIconMap[act.name] || Activity;
+                            const isSelected = selectedActivities.includes(
+                              act.id,
+                            );
+                            return (
+                              <button
+                                key={act.id}
+                                onClick={() => toggleActivity(act.id)}
+                                className={`
+                                  relative p-2.5 rounded-xl border transition-all duration-150
+                                  flex flex-col items-center gap-1.5
+                                  hover:scale-105 active:scale-95
+                                  ${
+                                    isSelected
+                                      ? "border-red-500 bg-red-50 dark:bg-red-900/20 shadow-sm"
+                                      : "border-gray-200 dark:border-gray-700 hover:border-red-300 bg-white dark:bg-gray-800"
+                                  }
+                                `}
+                              >
+                                <IconComponent
+                                  className={`w-6 h-6 ${
+                                    isSelected
+                                      ? "text-red-600 dark:text-red-400"
+                                      : "text-gray-600 dark:text-gray-400"
+                                  }`}
+                                />
+                                <p className="text-xs font-medium text-center leading-tight text-gray-700 dark:text-gray-200">
+                                  {act.name.length > 14
+                                    ? act.name.slice(0, 12) + "..."
+                                    : act.name}
+                                </p>
+                                {isSelected && (
+                                  <div className="absolute -top-1 -right-1 bg-red-500 rounded-full p-0.5 shadow-sm">
+                                    <Check className="w-3 h-3 text-white" />
+                                  </div>
+                                )}
+                              </button>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    );
+                  })}
+              </div>
+            )}
+
+            {/* Индикатор выбора */}
+            {selectedActivities.length > 0 && (
+              <div className="mt-4 p-2.5 bg-green-50 dark:bg-green-900/20 rounded-lg">
+                <p className="text-sm text-green-700 dark:text-green-300 text-center font-medium">
+                  ✓ Выбрано активностей: {selectedActivities.length}
+                </p>
+              </div>
+            )}
           </div>
         )}
 
         {/* Шаг 3 — Текст */}
         {step === 2 && (
-          <div className="bg-white dark:bg-gray-800 rounded-3xl p-8 shadow-2xl">
-            <h2 className="text-3xl font-bold text-center mb-8">
+          <div className="bg-white dark:bg-gray-800 rounded-xl p-4 shadow-lg">
+            <h2 className="text-xl font-bold dark:text-white text-center mb-1">
               {questions[2].title}
             </h2>
+            <p className="text-xs text-center text-gray-500 dark:text-gray-400 mb-3">
+              {questions[2].subtitle}
+            </p>
             <textarea
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              placeholder="Поделитесь своими мыслями..."
-              className="w-full h-64 p-6 rounded-2xl border-2 border-gray-300 dark:border-gray-600 focus:border-red-600 outline-none resize-none"
+              placeholder="Поделитесь мыслями..."
+              className="w-full h-40 p-3 rounded-lg border border-gray-200 dark:border-gray-700 
+                       focus:border-red-500 outline-none resize-none text-sm
+                       bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-200
+                       placeholder:text-gray-400 dark:placeholder:text-gray-500"
             />
+            <div className="mt-1 text-right text-[10px] text-gray-400 dark:text-gray-500">
+              {description.length} симв.
+            </div>
           </div>
         )}
 
         {/* Шаг 4 — Фото */}
         {step === 3 && (
-          <div className="bg-white dark:bg-gray-800 rounded-3xl p-8 shadow-2xl">
-            <h2 className="text-3xl font-bold text-center mb-8">
+          <div className="bg-white dark:bg-gray-800 rounded-xl p-4 shadow-lg">
+            <h2 className="text-xl font-bold dark:text-white text-center mb-1">
               {questions[3].title}
             </h2>
-            <div className="border-4 border-dashed border-gray-400 rounded-3xl p-16 text-center cursor-pointer hover:border-red-600 transition">
+            <p className="text-xs text-center text-gray-500 dark:text-gray-400 mb-3">
+              {questions[3].subtitle}
+            </p>
+
+            <label
+              htmlFor="photo-upload"
+              className="block border-2 border-dashed border-gray-300 dark:border-gray-600 
+                       rounded-lg p-4 text-center cursor-pointer
+                       hover:border-red-500 transition-colors
+                       bg-gray-50 dark:bg-gray-700/30"
+            >
               <input
                 type="file"
+                id="photo-upload"
                 multiple
                 accept="image/*"
                 onChange={handlePhoto}
                 className="hidden"
-                id="photo"
               />
-              <label htmlFor="photo" className="cursor-pointer">
-                <Camera className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-                <p className="text-xl font-bold">Нажмите или перетащите фото</p>
-              </label>
-            </div>
+              <Camera className="w-8 h-8 text-gray-400 dark:text-gray-500 mx-auto mb-1" />
+              <p className="text-xs text-gray-500 dark:text-gray-400">
+                Загрузить фото
+              </p>
+              <p className="text-[10px] text-gray-400 dark:text-gray-500 mt-0.5">
+                до 5 шт.
+              </p>
+            </label>
+
             {previews.length > 0 && (
-              <div className="grid grid-cols-3 gap-4 mt-8">
+              <div className="grid grid-cols-4 gap-2 mt-3">
                 {previews.map((src, i) => (
-                  <div key={i} className="relative group">
+                  <div key={i} className="relative group aspect-square">
                     <Image
                       src={src}
-                      alt=""
-                      width={300}
-                      height={300}
-                      className="rounded-xl"
+                      alt={`Фото ${i + 1}`}
+                      fill
+                      className="rounded object-cover"
                     />
                     <button
                       onClick={() => removePhoto(i)}
-                      className="absolute top-2 right-2 bg-red-600 text-white w-8 h-8 rounded-full opacity-0 group-hover:opacity-100 transition flex items-center justify-center"
+                      className="absolute top-0.5 right-0.5 bg-red-600 text-white w-5 h-5 rounded-full 
+                               opacity-0 group-hover:opacity-100 transition flex items-center justify-center"
                     >
-                      <Trash2 className="w-4 h-4" />
+                      <Trash2 className="w-3 h-3" />
                     </button>
                   </div>
                 ))}
@@ -380,31 +495,39 @@ export default function CreateEntry() {
         )}
 
         {/* Навигация */}
-        <div className="flex justify-between mt-12">
+        <div className="flex justify-between gap-3 mt-4">
           <button
             onClick={() => setStep((s) => Math.max(0, s - 1))}
-            className="px-10 py-4 bg-gray-200 dark:bg-gray-700 rounded-2xl font-bold flex items-center gap-2"
+            className="px-4 py-2 bg-gray-200 dark:bg-gray-700 
+                     hover:bg-gray-300 dark:hover:bg-gray-600 
+                     rounded-lg text-sm font-medium flex items-center gap-1 transition
+                     text-gray-700 dark:text-gray-200"
           >
-            <ArrowLeft className="w-5 h-5" />
+            <ArrowLeft className="w-3.5 h-3.5" />
             Назад
           </button>
 
-          {step < 3 ? (
+          {step < questions.length - 1 ? (
             <button
               onClick={() => setStep((s) => s + 1)}
               disabled={!canNext}
-              className="px-12 py-4 bg-gradient-to-r from-red-700 to-red-500 text-white rounded-2xl font-bold disabled:opacity-50 flex items-center gap-2"
+              className="px-5 py-2 bg-gradient-to-r from-red-700 to-red-500 
+                       text-white rounded-lg text-sm font-medium disabled:opacity-50 
+                       disabled:cursor-not-allowed flex items-center gap-1 transition
+                       hover:shadow-md"
             >
               Далее
-              <ArrowLeft className="w-5 h-5 rotate-180" />
+              <ArrowLeft className="w-3.5 h-3.5 rotate-180" />
             </button>
           ) : (
             <button
               onClick={saveEntry}
-              className="px-16 py-5 bg-gradient-to-r from-red-700 to-red-500 text-white rounded-2xl font-bold text-xl shadow-2xl hover:shadow-red-600/50 flex items-center gap-3"
+              className="px-5 py-2 bg-gradient-to-r from-green-600 to-emerald-500 
+                       text-white rounded-lg text-sm font-medium flex items-center gap-1 transition
+                       hover:shadow-md"
             >
-              <Check className="w-6 h-6" />
-              Сохранить запись
+              <Check className="w-3.5 h-3.5" />
+              Сохранить
             </button>
           )}
         </div>

@@ -29,7 +29,7 @@ export default function Insights({ userId }: InsightsProps) {
       const data = await res.json();
       const cleanedInsights = data.insights.map((insight: string) => {
         const withoutEmoji = insight.replace(/[📉🌟✨🎉💪📝🔥]/g, "").trim();
-        return `Такса заметила, что ${withoutEmoji.charAt(0).toLowerCase() + withoutEmoji.slice(1)}`;
+        return `${withoutEmoji.charAt(0).toLowerCase() + withoutEmoji.slice(1)}`;
       });
       setInsights(cleanedInsights);
     } catch (error) {

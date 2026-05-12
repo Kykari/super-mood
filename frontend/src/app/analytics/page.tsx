@@ -8,7 +8,6 @@ import {
   BarChart3,
   Brain,
   Activity,
-  Clock,
   BookOpen,
   Plus,
   TrendingUp,
@@ -181,9 +180,9 @@ export default function AnalyticsPage() {
   );
   const [activities, setActivities] = useState<Activity[]>([]);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<
-    "overview" | "moods" | "activities" | "timeline"
-  >("overview");
+  const [activeTab, setActiveTab] = useState<"overview" | "activities">(
+    "overview",
+  );
 
   useEffect(() => {
     loadData();
@@ -409,13 +408,11 @@ export default function AnalyticsPage() {
           </p>
         </div>
 
-        {/* Табы навигации */}
+        {/* Табы навигации - только Обзор и Активности */}
         <div className="flex flex-wrap gap-2 mb-8 justify-center">
           {[
             { id: "overview" as const, label: "Обзор", icon: TrendingUp },
-            { id: "moods" as const, label: "Настроения", icon: Brain },
             { id: "activities" as const, label: "Активности", icon: Activity },
-            { id: "timeline" as const, label: "Временная шкала", icon: Clock },
           ].map((tab) => (
             <button
               key={tab.id}
@@ -464,127 +461,196 @@ export default function AnalyticsPage() {
 
         {/* Контент вкладок */}
         <div className="space-y-8">
-          {(activeTab === "overview" || activeTab === "moods") && (
-            <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-2xl p-6 shadow-2xl border border-gray-100 dark:border-gray-700">
-              <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-6">
-                {activeTab === "overview"
-                  ? "Распределение настроений"
-                  : "Детальный анализ настроений"}
-              </h3>
-              <ChartWrapper>
-                <ResponsiveContainer width="100%" height={300}>
-                  <PieChart>
-                    <defs>
-                      {COLOR_PALETTE.map((color, index) => (
+          {/* Вкладка Обзор - распределение настроений + динамика + дни недели + часы */}
+          {activeTab === "overview" && (
+            <>
+              <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-2xl p-6 shadow-2xl border border-gray-100 dark:border-gray-700">
+                <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-6">
+                  Распределение настроений
+                </h3>
+                <ChartWrapper>
+                  <ResponsiveContainer width="100%" height={300}>
+                    <PieChart>
+                      <defs>
+                        {COLOR_PALETTE.map((color, index) => (
+                          <linearGradient
+                            key={`grad-${index}`}
+                            id={`pieGrad-${index}`}
+                            x1="0"
+                            y1="0"
+                            x2="1"
+                            y2="1"
+                          >
+                            <stop offset="0%" stopColor={color} />
+                            <stop
+                              offset="100%"
+                              stopColor={color}
+                              stopOpacity={0.7}
+                            />
+                          </linearGradient>
+                        ))}
+                      </defs>
+                      <Pie
+                        data={moodDistributionData}
+                        cx="50%"
+                        cy="50%"
+                        labelLine={false}
+                        label={({ name, percent }) =>
+                          `${name}: ${(percent * 100).toFixed(0)}%`
+                        }
+                        outerRadius={80}
+                        dataKey="value"
+                      >
+                        {moodDistributionData.map((_, index) => (
+                          <Cell
+                            key={`cell-${index}`}
+                            fill={`url(#pieGrad-${index % COLOR_PALETTE.length})`}
+                            stroke="#fff"
+                            strokeWidth={2}
+                          />
+                        ))}
+                      </Pie>
+                      <Tooltip
+                        formatter={(value) => [
+                          `${value} записей`,
+                          "Количество",
+                        ]}
+                        contentStyle={{
+                          backgroundColor: "rgba(0,0,0,0.8)",
+                          border: "none",
+                          borderRadius: "8px",
+                          color: "#fff",
+                        }}
+                      />
+                      <Legend />
+                    </PieChart>
+                  </ResponsiveContainer>
+                </ChartWrapper>
+              </div>
+
+              <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-2xl p-6 shadow-2xl border border-gray-100 dark:border-gray-700">
+                <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-6">
+                  Динамика настроения
+                </h3>
+                <ChartWrapper>
+                  <ResponsiveContainer width="100%" height={300}>
+                    <LineChart data={moodTimelineData}>
+                      <defs>
                         <linearGradient
-                          key={`grad-${index}`}
-                          id={`pieGrad-${index}`}
+                          id="areaGradient"
                           x1="0"
                           y1="0"
-                          x2="1"
+                          x2="0"
                           y2="1"
                         >
-                          <stop offset="0%" stopColor={color} />
                           <stop
-                            offset="100%"
-                            stopColor={color}
-                            stopOpacity={0.7}
+                            offset="5%"
+                            stopColor="#DC2626"
+                            stopOpacity={0.3}
+                          />
+                          <stop
+                            offset="95%"
+                            stopColor="#DC2626"
+                            stopOpacity={0}
                           />
                         </linearGradient>
-                      ))}
-                    </defs>
-                    <Pie
-                      data={moodDistributionData}
-                      cx="50%"
-                      cy="50%"
-                      labelLine={false}
-                      label={({ name, percent }) =>
-                        `${name}: ${(percent * 100).toFixed(0)}%`
-                      }
-                      outerRadius={80}
-                      dataKey="value"
-                    >
-                      {moodDistributionData.map((_, index) => (
-                        <Cell
-                          key={`cell-${index}`}
-                          fill={`url(#pieGrad-${index % COLOR_PALETTE.length})`}
-                          stroke="#fff"
-                          strokeWidth={2}
+                      </defs>
+                      <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
+                      <XAxis dataKey="date" stroke="#9CA3AF" />
+                      <YAxis domain={[0, 10]} stroke="#9CA3AF" />
+                      <Tooltip
+                        formatter={(value) => [`${value}`, "Настроение (1-10)"]}
+                        contentStyle={{
+                          backgroundColor: "rgba(0,0,0,0.8)",
+                          border: "none",
+                          borderRadius: "8px",
+                          color: "#fff",
+                        }}
+                      />
+                      <Legend />
+                      <Area
+                        type="monotone"
+                        dataKey="moodScore"
+                        stroke="#DC2626"
+                        strokeWidth={3}
+                        fill="url(#areaGradient)"
+                        dot={{ r: 4, fill: "#DC2626", strokeWidth: 2 }}
+                        activeDot={{ r: 6 }}
+                      />
+                    </LineChart>
+                  </ResponsiveContainer>
+                </ChartWrapper>
+              </div>
+
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-2xl p-6 shadow-2xl border border-gray-100 dark:border-gray-700">
+                  <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-6">
+                    Активность по дням недели
+                  </h3>
+                  <ChartWrapper>
+                    <ResponsiveContainer width="100%" height={300}>
+                      <RadarChart data={weekdayData}>
+                        <PolarGrid stroke="#374151" />
+                        <PolarAngleAxis dataKey="day" stroke="#9CA3AF" />
+                        <PolarRadiusAxis stroke="#9CA3AF" />
+                        <Radar
+                          name="Активность"
+                          dataKey="moodCount"
+                          stroke="#DC2626"
+                          fill="#DC2626"
+                          fillOpacity={0.6}
                         />
-                      ))}
-                    </Pie>
-                    <Tooltip
-                      formatter={(value) => [`${value} записей`, "Количество"]}
-                      contentStyle={{
-                        backgroundColor: "rgba(0,0,0,0.8)",
-                        border: "none",
-                        borderRadius: "8px",
-                        color: "#fff",
-                      }}
-                    />
-                    <Legend />
-                  </PieChart>
-                </ResponsiveContainer>
-              </ChartWrapper>
-            </div>
+                        <Tooltip
+                          contentStyle={{
+                            backgroundColor: "rgba(0,0,0,0.8)",
+                            border: "none",
+                            borderRadius: "8px",
+                            color: "#fff",
+                          }}
+                        />
+                      </RadarChart>
+                    </ResponsiveContainer>
+                  </ChartWrapper>
+                </div>
+
+                <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-2xl p-6 shadow-2xl border border-gray-100 dark:border-gray-700">
+                  <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-6">
+                    Записи по времени суток
+                  </h3>
+                  <ChartWrapper>
+                    <ResponsiveContainer width="100%" height={300}>
+                      <BarChart data={hourlyData}>
+                        <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
+                        <XAxis dataKey="hour" stroke="#9CA3AF" />
+                        <YAxis stroke="#9CA3AF" />
+                        <Tooltip
+                          formatter={(value) => [
+                            `${value} записей`,
+                            "Количество",
+                          ]}
+                          contentStyle={{
+                            backgroundColor: "rgba(0,0,0,0.8)",
+                            border: "none",
+                            borderRadius: "8px",
+                            color: "#fff",
+                          }}
+                        />
+                        <Legend />
+                        <Bar
+                          dataKey="value"
+                          name="Записи по часам"
+                          fill="#991B1B"
+                          radius={[8, 8, 0, 0]}
+                        />
+                      </BarChart>
+                    </ResponsiveContainer>
+                  </ChartWrapper>
+                </div>
+              </div>
+            </>
           )}
 
-          {(activeTab === "overview" || activeTab === "timeline") && (
-            <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-2xl p-6 shadow-2xl border border-gray-100 dark:border-gray-700">
-              <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-6">
-                Динамика настроения
-              </h3>
-              <ChartWrapper>
-                <ResponsiveContainer width="100%" height={300}>
-                  <LineChart data={moodTimelineData}>
-                    <defs>
-                      <linearGradient
-                        id="areaGradient"
-                        x1="0"
-                        y1="0"
-                        x2="0"
-                        y2="1"
-                      >
-                        <stop
-                          offset="5%"
-                          stopColor="#DC2626"
-                          stopOpacity={0.3}
-                        />
-                        <stop
-                          offset="95%"
-                          stopColor="#DC2626"
-                          stopOpacity={0}
-                        />
-                      </linearGradient>
-                    </defs>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
-                    <XAxis dataKey="date" stroke="#9CA3AF" />
-                    <YAxis domain={[0, 10]} stroke="#9CA3AF" />
-                    <Tooltip
-                      formatter={(value) => [`${value}`, "Настроение (1-10)"]}
-                      contentStyle={{
-                        backgroundColor: "rgba(0,0,0,0.8)",
-                        border: "none",
-                        borderRadius: "8px",
-                        color: "#fff",
-                      }}
-                    />
-                    <Legend />
-                    <Area
-                      type="monotone"
-                      dataKey="moodScore"
-                      stroke="#DC2626"
-                      strokeWidth={3}
-                      fill="url(#areaGradient)"
-                      dot={{ r: 4, fill: "#DC2626", strokeWidth: 2 }}
-                      activeDot={{ r: 6 }}
-                    />
-                  </LineChart>
-                </ResponsiveContainer>
-              </ChartWrapper>
-            </div>
-          )}
-
+          {/* Вкладка Активности */}
           {activeTab === "activities" && (
             <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-2xl p-6 shadow-2xl border border-gray-100 dark:border-gray-700">
               <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-6">
@@ -621,74 +687,6 @@ export default function AnalyticsPage() {
                   </BarChart>
                 </ResponsiveContainer>
               </ChartWrapper>
-            </div>
-          )}
-
-          {(activeTab === "overview" || activeTab === "timeline") && (
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-              <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-2xl p-6 shadow-2xl border border-gray-100 dark:border-gray-700">
-                <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-6">
-                  Активность по дням недели
-                </h3>
-                <ChartWrapper>
-                  <ResponsiveContainer width="100%" height={300}>
-                    <RadarChart data={weekdayData}>
-                      <PolarGrid stroke="#374151" />
-                      <PolarAngleAxis dataKey="day" stroke="#9CA3AF" />
-                      <PolarRadiusAxis stroke="#9CA3AF" />
-                      <Radar
-                        name="Активность"
-                        dataKey="moodCount"
-                        stroke="#DC2626"
-                        fill="#DC2626"
-                        fillOpacity={0.6}
-                      />
-                      <Tooltip
-                        contentStyle={{
-                          backgroundColor: "rgba(0,0,0,0.8)",
-                          border: "none",
-                          borderRadius: "8px",
-                          color: "#fff",
-                        }}
-                      />
-                    </RadarChart>
-                  </ResponsiveContainer>
-                </ChartWrapper>
-              </div>
-
-              <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-2xl p-6 shadow-2xl border border-gray-100 dark:border-gray-700">
-                <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-6">
-                  Записи по времени суток
-                </h3>
-                <ChartWrapper>
-                  <ResponsiveContainer width="100%" height={300}>
-                    <BarChart data={hourlyData}>
-                      <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
-                      <XAxis dataKey="hour" stroke="#9CA3AF" />
-                      <YAxis stroke="#9CA3AF" />
-                      <Tooltip
-                        formatter={(value) => [
-                          `${value} записей`,
-                          "Количество",
-                        ]}
-                        contentStyle={{
-                          backgroundColor: "rgba(0,0,0,0.8)",
-                          border: "none",
-                          borderRadius: "8px",
-                          color: "#fff",
-                        }}
-                      />
-                      <Legend />
-                      <Bar
-                        dataKey="value"
-                        name="Записи по часам"
-                        fill="#991B1B"
-                        radius={[8, 8, 0, 0]}
-                      />
-                    </BarChart>
-                  </ResponsiveContainer>
-                </ChartWrapper>
-              </div>
             </div>
           )}
         </div>

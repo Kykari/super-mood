@@ -122,7 +122,7 @@ export default function Home() {
                 <div className="relative group max-w-[250px] mx-auto">
                   <div className="absolute -inset-3 sm:-inset-4 bg-gradient-to-r from-[#7F1D1D] to-[#DC2626] rounded-3xl opacity-20 blur-xl group-hover:opacity-30 transition-all duration-500"></div>
                   <Image
-                    src="/phone.jpg"
+                    src="/phone1.jpg"
                     alt="скриншот1"
                     width={250}
                     height={500}
@@ -207,7 +207,7 @@ export default function Home() {
               <div className="relative group max-w-[250px] mx-auto">
                 <div className="absolute -inset-4 sm:-inset-6  rounded-3xl opacity-20 blur-xl group-hover:opacity-30 transition-all duration-500"></div>
                 <Image
-                  src="/phone.jpg"
+                  src="/phone3.jpg"
                   alt="скриншот2"
                   width={250}
                   height={500}
@@ -292,7 +292,7 @@ export default function Home() {
               <div className="relative group order-2 lg:order-1 max-w-[250px] mx-auto">
                 <div className="absolute -inset-4 sm:-inset-6 bg-gradient-to-r rounded-3xl opacity-20 blur-xl group-hover:opacity-30 transition-all duration-500"></div>
                 <Image
-                  src="/phone.jpg"
+                  src="/phone6.jpg"
                   alt="скриншот3"
                   width={250}
                   height={500}

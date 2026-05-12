@@ -3,32 +3,33 @@ import Link from "next/link";
 import ThemeCard from "./components/DarkTheme";
 import {
   Brain,
-  Target,
-  Shield,
   Sparkles,
   Camera,
   BarChart,
   NotebookPen,
+  TrendingUp,
+  Heart,
+  Smile,
 } from "lucide-react";
 
 const features = [
   {
     icon: Brain,
-    title: "AI Анализ настроения",
+    title: "Анализ настроения",
     description:
-      "Искусственный интеллект анализирует ваши паттерны настроения и дает персонализированные рекомендации",
+      "Система анализирует ваши паттерны настроения и дает персонализированные рекомендации на основе данных",
   },
   {
-    icon: Target,
-    title: "Умные цели",
+    icon: Heart,
+    title: "Забота о себе",
     description:
-      "Ставьте цели и отслеживайте прогресс с помощью интеллектуальной системы мотивации",
+      "Регулярное ведение дневника помогает лучше понимать себя и свои эмоции",
   },
   {
-    icon: Shield,
-    title: "Полная конфиденциальность",
+    icon: TrendingUp,
+    title: "Прогресс и динамика",
     description:
-      "Ваши данные защищены банковским уровнем шифрования и никогда не передаются третьим лицам",
+      "Отслеживайте изменения своего эмоционального состояния с помощью наглядных графиков и диаграмм",
   },
 ];
 
@@ -36,50 +37,51 @@ export default function Home() {
   return (
     <main className="bg-gradient-to-br from-white via-gray-50 to-gray-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 theme-transition">
       <div className="container mx-auto">
-        <section className="min-h-screen flex items-center justify-center px-6 sm:px-8 lg:px-20 pt-20 pb-20">
+        <section className="min-h-screen flex items-center justify-center px-6 sm:px-8 lg:px-20 py-20">
           <div className="container mx-auto">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-10 items-center">
-              <div className="animate-fade-in-up">
-                <h1 className="text-5xl sm:text-6xl lg:text-7xl font-black leading-tight">
+              <div className="max-w-xl">
+                <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black leading-tight">
                   <span className="bg-gradient-to-r from-[#7F1D1D] to-[#DC2626] bg-clip-text text-transparent">
-                    ТРЕКЕР
+                    SUPER MOOD
                   </span>
                   <br />
                   <span className="text-gray-900 dark:text-white">
-                    НАСТРОЕНИЯ
+                    Трекер настроения
                   </span>
                 </h1>
 
-                <h2 className="text-2xl sm:text-3xl text-gray-800 dark:text-white font-light leading-tight">
+                <h2 className="text-xl sm:text-2xl text-gray-800 dark:text-white font-light leading-tight mt-3">
                   Отслеживай эмоции,
                   <br />
                   <span className="font-medium">управляй своим днем!</span>
                 </h2>
 
-                <p className="font-light text-lg sm:text-xl my-2 lg:my-4 text-gray-600 dark:text-gray-300 leading-relaxed max-w-2xl">
-                  Понимание своих эмоций — ключ к балансу и продуктивности.
-                  <br />
-                  Наш трекер помогает выявить закономерности в вашем настроении
-                  и дает практические рекомендации для улучшения самочувствия
+                <p className="text-sm sm:text-base my-4 text-gray-600 dark:text-gray-300 leading-relaxed">
+                  SUPER MOOD — это умный дневник эмоций, который помогает
+                  понимать себя, анализировать настроение и находить связь между
+                  активностями и эмоциональным состоянием.
                 </p>
 
-                <div className="flex gap-4 sm:gap-6 mt-4 lg:mt-6">
+                <div className="flex gap-4 mt-6">
                   <Link href="/auth/register">
-                    <button className="bg-gradient-to-r from-[#7F1D1D] to-[#DC2626] hover:from-[#991B1B] hover:to-[#ef4444] text-white px-8 sm:px-12 py-4 sm:py-5 rounded-2xl text-lg sm:text-xl font-semibold shadow-2xl hover:shadow-3xl transition-all duration-500 transform hover:scale-105 flex items-center gap-2">
-                      <Sparkles className="w-6 h-6" />
-                      Попробовать
+                    <button className="bg-gradient-to-r from-[#7F1D1D] to-[#DC2626] hover:from-[#991B1B] hover:to-[#ef4444] text-white px-5 sm:px-6 py-2.5 sm:py-3 rounded-xl text-sm sm:text-base font-semibold shadow-xl hover:shadow-2xl transition-all duration-500 transform hover:scale-105 flex items-center gap-2">
+                      <Sparkles className="w-4 h-4 sm:w-5 sm:h-5" />
+                      Начать вести дневник
                     </button>
                   </Link>
                 </div>
               </div>
-              <div className="relative">
-                <Image
-                  src="/dogPlay.png"
-                  alt="такса"
-                  width={600}
-                  height={600}
-                  className="rounded-3xl w-full h-auto max-w-md lg:max-w-lg mx-auto"
-                />
+              <div className="relative flex justify-center">
+                <div className="w-64 h-64 sm:w-80 sm:h-80 lg:w-[400px] lg:h-[400px] relative">
+                  <Image
+                    src="/dogPlay.png"
+                    alt="такса"
+                    fill
+                    className="object-contain rounded-3xl"
+                    priority
+                  />
+                </div>
               </div>
             </div>
           </div>
@@ -96,8 +98,7 @@ export default function Home() {
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 lg:gap-12 items-start max-w-7xl mx-auto">
               <div className="flex flex-col gap-12 lg:gap-16">
                 <div className="group bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-3xl p-6 sm:p-8 shadow-2xl border border-gray-100 dark:border-gray-700 hover:shadow-3xl transition-all duration-500 hover:scale-105">
-                  <h3 className="text-xl sm:text-2xl font-bold text-[#7F1D1D] dark:text-[#f87171] mb-4 text-center flex items-center justify-center gap-2">
-                    <NotebookPen className="w-6 h-6" />
+                  <h3 className="text-xl sm:text-2xl font-bold text-[#7F1D1D] dark:text-[#f87171] mb-4 text-center">
                     Записывайте настроение мгновенно
                   </h3>
                   <p className="text-gray-600 dark:text-gray-300 text-center leading-relaxed text-sm sm:text-base">
@@ -107,8 +108,7 @@ export default function Home() {
                 </div>
 
                 <div className="group bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-3xl p-6 sm:p-8 shadow-2xl border border-gray-100 dark:border-gray-700 hover:shadow-3xl transition-all duration-500 hover:scale-105">
-                  <h3 className="text-xl sm:text-2xl font-bold text-[#7F1D1D] dark:text-[#f87171] mb-4 text-center flex items-center justify-center gap-2">
-                    <Camera className="w-6 h-6" />
+                  <h3 className="text-xl sm:text-2xl font-bold text-[#7F1D1D] dark:text-[#f87171] mb-4 text-center">
                     Прикрепляйте фотографии
                   </h3>
                   <p className="text-gray-600 dark:text-gray-300 text-center leading-relaxed text-sm sm:text-base">
@@ -142,8 +142,7 @@ export default function Home() {
 
               <div className="flex flex-col gap-12 lg:gap-16">
                 <div className="group bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-3xl p-6 sm:p-8 shadow-2xl border border-gray-100 dark:border-gray-700 hover:shadow-3xl transition-all duration-500 hover:scale-105">
-                  <h3 className="text-xl sm:text-2xl font-bold text-[#7F1D1D] dark:text-[#f87171] mb-4 text-center flex items-center justify-center gap-2">
-                    <BarChart className="w-6 h-6" />
+                  <h3 className="text-xl sm:text-2xl font-bold text-[#7F1D1D] dark:text-[#f87171] mb-4 text-center">
                     Анализируйте свои эмоции с графиками
                   </h3>
                   <p className="text-gray-600 dark:text-gray-300 text-center leading-relaxed text-sm sm:text-base">
@@ -174,7 +173,7 @@ export default function Home() {
                   Удобная система оценки
                 </h2>
                 <p className="font-light text-lg sm:text-xl text-gray-600 dark:text-gray-300 leading-relaxed">
-                  Выбирайте из 5+ эмоций и десятков активностей, чтобы ваш
+                  Выбирайте из 24 эмоций и десятков активностей, чтобы ваш
                   дневник настроения отражал именно ваше состояние —{" "}
                   <span className="font-semibold dark:text-white">
                     без шаблонов и ограничений!
@@ -200,7 +199,8 @@ export default function Home() {
                 </ul>
 
                 <p className="font-semibold text-xl sm:text-2xl text-gray-900 dark:text-white">
-                  Это не просто трекер - это ваш личный гид к осознанности!
+                  SUPER MOOD — это не просто трекер, а ваш личный гид к
+                  осознанности!
                 </p>
               </div>
 
@@ -285,6 +285,7 @@ export default function Home() {
             </div>
           </div>
         </section>
+
         <section className="py-24 lg:py-32">
           <div className="container mx-auto px-6 sm:px-8 lg:px-12">
             <div className="grid grid-cols-1 lg:grid-cols-2 items-center max-w-5xl mx-auto">
@@ -300,46 +301,24 @@ export default function Home() {
               </div>
               <div className="order-1 lg:order-2">
                 <h2 className="text-3xl sm:text-4xl font-bold text-[#7F1D1D] dark:text-[#f87171] mb-6 lg:mb-8 text-right">
-                  Вдохновение на каждый день
+                  Такса — ваш проводник в мире эмоций
                 </h2>
 
                 <p className="font-light text-lg sm:text-xl text-gray-600 dark:text-gray-300 mb-6 lg:mb-8 leading-relaxed text-right">
-                  Нажимайте на{" "}
-                  <span className="font-medium italic dark:text-white">
-                    кнопку
-                  </span>{" "}
-                  — и получайте порцию{" "}
-                  <span className="font-medium italic dark:text-white">
-                    мотивации!
-                  </span>{" "}
-                  Каждый раз вас ждёт новая цитата от великих людей и красивая
-                  картинка, которая зарядит энергией, подарит идею или просто
-                  поднимет настроение
+                  Наш талисман — черно-подпалая такса — всегда готова поддержать
+                  вас. Она анализирует ваши записи и делится полезными
+                  наблюдениями и инсайтами, помогая лучше понимать свои эмоции.
                 </p>
 
                 <div className="font-light text-lg sm:text-xl space-y-3 lg:space-y-4 text-gray-600 dark:text-gray-300 mb-6 lg:mb-8 text-right">
-                  <p>
-                    - Хотите вернуть{" "}
-                    <span className="font-semibold dark:text-white">
-                      focus?
-                    </span>
-                  </p>
-                  <p>
-                    - Нужен толчок для новых{" "}
-                    <span className="font-semibold dark:text-white">
-                      свершений?
-                    </span>
-                  </p>
-                  <p>
-                    - Просто ищете повод{" "}
-                    <span className="font-semibold dark:text-white">
-                      улыбнуться?
-                    </span>
-                  </p>
+                  <p>✓ Получайте персональные рекомендации</p>
+                  <p>✓ Отслеживайте динамику настроения</p>
+                  <p>✓ Открывайте новые грани самопознания</p>
                 </div>
 
                 <p className="font-medium text-xl sm:text-2xl text-gray-900 dark:text-white text-right leading-tight">
-                  Жмите на кнопку — и пусть удача улыбнётся вам первая!
+                  Присоединяйтесь к SUPER MOOD и начните путь к эмоциональному
+                  балансу!
                 </p>
               </div>
             </div>

@@ -26,6 +26,9 @@ const LineChart = dynamic(
 const Line = dynamic(() => import("recharts").then((mod) => mod.Line), {
   ssr: false,
 });
+const Area = dynamic(() => import("recharts").then((mod) => mod.Area), {
+  ssr: false,
+});
 const BarChart = dynamic(() => import("recharts").then((mod) => mod.BarChart), {
   ssr: false,
 });
@@ -139,30 +142,31 @@ const moodTranslations: Record<string, string> = {
   interest: "интерес",
 };
 
-// Цветовая палитра
+// Цветовая палитра — более насыщенные и разнообразные цвета
 const COLOR_PALETTE = [
   "#7F1D1D",
-  "#991B1B",
-  "#B91C1C",
   "#DC2626",
-  "#EF4444",
   "#F97316",
   "#F59E0B",
   "#EAB308",
   "#84CC16",
   "#22C55E",
   "#10B981",
+  "#14B8A6",
+  "#06B6D4",
   "#0EA5E9",
   "#3B82F6",
   "#6366F1",
   "#8B5CF6",
+  "#D946EF",
+  "#EC4899",
 ];
 
 // Компонент-обёртка для ленивой загрузки графиков
 const ChartWrapper = ({ children }: { children: React.ReactNode }) => (
   <Suspense
     fallback={
-      <div className="h-[300px] flex items-center justify-center">
+      <div className="h-[300px] flex items-center justify-center text-gray-500 dark:text-gray-400">
         Загрузка графика...
       </div>
     }
@@ -470,6 +474,25 @@ export default function AnalyticsPage() {
               <ChartWrapper>
                 <ResponsiveContainer width="100%" height={300}>
                   <PieChart>
+                    <defs>
+                      {COLOR_PALETTE.map((color, index) => (
+                        <linearGradient
+                          key={`grad-${index}`}
+                          id={`pieGrad-${index}`}
+                          x1="0"
+                          y1="0"
+                          x2="1"
+                          y2="1"
+                        >
+                          <stop offset="0%" stopColor={color} />
+                          <stop
+                            offset="100%"
+                            stopColor={color}
+                            stopOpacity={0.7}
+                          />
+                        </linearGradient>
+                      ))}
+                    </defs>
                     <Pie
                       data={moodDistributionData}
                       cx="50%"
@@ -484,12 +507,20 @@ export default function AnalyticsPage() {
                       {moodDistributionData.map((_, index) => (
                         <Cell
                           key={`cell-${index}`}
-                          fill={COLOR_PALETTE[index % COLOR_PALETTE.length]}
+                          fill={`url(#pieGrad-${index % COLOR_PALETTE.length})`}
+                          stroke="#fff"
+                          strokeWidth={2}
                         />
                       ))}
                     </Pie>
                     <Tooltip
                       formatter={(value) => [`${value} записей`, "Количество"]}
+                      contentStyle={{
+                        backgroundColor: "rgba(0,0,0,0.8)",
+                        border: "none",
+                        borderRadius: "8px",
+                        color: "#fff",
+                      }}
                     />
                     <Legend />
                   </PieChart>
@@ -506,20 +537,47 @@ export default function AnalyticsPage() {
               <ChartWrapper>
                 <ResponsiveContainer width="100%" height={300}>
                   <LineChart data={moodTimelineData}>
+                    <defs>
+                      <linearGradient
+                        id="areaGradient"
+                        x1="0"
+                        y1="0"
+                        x2="0"
+                        y2="1"
+                      >
+                        <stop
+                          offset="5%"
+                          stopColor="#DC2626"
+                          stopOpacity={0.3}
+                        />
+                        <stop
+                          offset="95%"
+                          stopColor="#DC2626"
+                          stopOpacity={0}
+                        />
+                      </linearGradient>
+                    </defs>
                     <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
-                    <XAxis dataKey="date" />
-                    <YAxis domain={[0, 10]} />
+                    <XAxis dataKey="date" stroke="#9CA3AF" />
+                    <YAxis domain={[0, 10]} stroke="#9CA3AF" />
                     <Tooltip
                       formatter={(value) => [`${value}`, "Настроение (1-10)"]}
+                      contentStyle={{
+                        backgroundColor: "rgba(0,0,0,0.8)",
+                        border: "none",
+                        borderRadius: "8px",
+                        color: "#fff",
+                      }}
                     />
                     <Legend />
-                    <Line
+                    <Area
                       type="monotone"
                       dataKey="moodScore"
-                      name="Уровень настроения"
                       stroke="#DC2626"
                       strokeWidth={3}
-                      dot={{ r: 4 }}
+                      fill="url(#areaGradient)"
+                      dot={{ r: 4, fill: "#DC2626", strokeWidth: 2 }}
+                      activeDot={{ r: 6 }}
                     />
                   </LineChart>
                 </ResponsiveContainer>
@@ -541,12 +599,25 @@ export default function AnalyticsPage() {
                       angle={-45}
                       textAnchor="end"
                       height={80}
+                      stroke="#9CA3AF"
                     />
-                    <YAxis />
+                    <YAxis stroke="#9CA3AF" />
                     <Tooltip
                       formatter={(value) => [`${value} раз`, "Количество"]}
+                      contentStyle={{
+                        backgroundColor: "rgba(0,0,0,0.8)",
+                        border: "none",
+                        borderRadius: "8px",
+                        color: "#fff",
+                      }}
                     />
-                    <Bar dataKey="value" name="Количество" fill="#7F1D1D" />
+                    <Legend />
+                    <Bar
+                      dataKey="value"
+                      name="Количество"
+                      fill="#DC2626"
+                      radius={[8, 8, 0, 0]}
+                    />
                   </BarChart>
                 </ResponsiveContainer>
               </ChartWrapper>
@@ -572,7 +643,14 @@ export default function AnalyticsPage() {
                         fill="#DC2626"
                         fillOpacity={0.6}
                       />
-                      <Tooltip />
+                      <Tooltip
+                        contentStyle={{
+                          backgroundColor: "rgba(0,0,0,0.8)",
+                          border: "none",
+                          borderRadius: "8px",
+                          color: "#fff",
+                        }}
+                      />
                     </RadarChart>
                   </ResponsiveContainer>
                 </ChartWrapper>
@@ -586,18 +664,26 @@ export default function AnalyticsPage() {
                   <ResponsiveContainer width="100%" height={300}>
                     <BarChart data={hourlyData}>
                       <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
-                      <XAxis dataKey="hour" />
-                      <YAxis />
+                      <XAxis dataKey="hour" stroke="#9CA3AF" />
+                      <YAxis stroke="#9CA3AF" />
                       <Tooltip
                         formatter={(value) => [
                           `${value} записей`,
                           "Количество",
                         ]}
+                        contentStyle={{
+                          backgroundColor: "rgba(0,0,0,0.8)",
+                          border: "none",
+                          borderRadius: "8px",
+                          color: "#fff",
+                        }}
                       />
+                      <Legend />
                       <Bar
                         dataKey="value"
                         name="Записи по часам"
                         fill="#991B1B"
+                        radius={[8, 8, 0, 0]}
                       />
                     </BarChart>
                   </ResponsiveContainer>

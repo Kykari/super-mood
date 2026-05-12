@@ -8,7 +8,8 @@ from models.analytics import UserAnalytics
 from models.mood import MoodStory
 from datetime import datetime, timedelta, timezone
 from models.activity import Activity
-from models.mood import MoodStory
+from typing import List, Dict, Any
+import random
 
 router = APIRouter(prefix="/analytics", tags=["analytics"])
 
@@ -131,6 +132,7 @@ async def get_analytics(
     analytics = await db.get(UserAnalytics, current_user.id)
     return analytics.data or {"total_entries": 0}
 
+
 @router.get("/insights")
 async def get_insights(
     db: AsyncSession = Depends(get_db),
@@ -143,71 +145,125 @@ async def get_insights(
     stories = result.scalars().all()
     
     if len(stories) < 3:
-        return {"insights": ["📝 Пока недостаточно данных для анализа. Добавьте ещё несколько записей!"]}
+        return {"insights": ["Пока недостаточно данных для анализа. Добавьте ещё несколько записей!"]}
     
     insights = []
     
-    # 1. Анализ по дням недели
-    weekday_moods = {0: [], 1: [], 2: [], 3: [], 4: [], 5: [], 6: []}
+    # Определения эмоций
+    sadness_moods = ["sadness", "grief", "disgust", "anger", "rage", "annoyance"]
+    joy_moods = ["joy", "ecstasy", "admiration", "love", "optimism"]
     weekday_names = ["понедельник", "вторник", "среда", "четверг", "пятница", "суббота", "воскресенье"]
     
+    # 1. Анализ по дням недели
+    weekday_moods = {i: [] for i in range(7)}
     for story in stories:
         weekday = story.created_at.weekday()
         for mood in story.moods or []:
             weekday_moods[weekday].append(mood)
     
-    # Находим самый грустный день
-    sadness_moods = ["sadness", "grief", "disgust", "anger", "rage", "annoyance"]
-    sad_counts = {}
-    for i in range(7):
-        sad_counts[i] = sum(1 for mood in weekday_moods[i] if mood in sadness_moods)
-    
+    # Самый грустный день
+    sad_counts = {i: sum(1 for mood in weekday_moods[i] if mood in sadness_moods) for i in range(7)}
     if max(sad_counts.values()) > 0:
         worst_day = max(sad_counts, key=sad_counts.get)
+        day_name = weekday_names[worst_day]
+        # Склонение для воскресенья
+        if day_name == "воскресенье":
+            preposition = "в"
+            day_form = f"{preposition} {day_name}"
+        else:
+            preposition = "по"
+            day_form = f"{preposition} {day_name}м"
         if sad_counts[worst_day] > 0:
-            insights.append(f"вы чаще испытываете грусть в {weekday_names[worst_day]}. Попробуйте запланировать что-то приятное на этот день!")
+            insights.append(f"Такса заметила, что вы чаще испытываете грусть {day_form}. Попробуйте запланировать что-то приятное на этот день!")
     
-    # 2. Лучший день недели
-    joy_moods = ["joy", "ecstasy", "admiration", "love", "optimism"]
-    joy_counts = {}
-    for i in range(7):
-        joy_counts[i] = sum(1 for mood in weekday_moods[i] if mood in joy_moods)
-    
+    # Самый позитивный день
+    joy_counts = {i: sum(1 for mood in weekday_moods[i] if mood in joy_moods) for i in range(7)}
     if max(joy_counts.values()) > 0:
         best_day = max(joy_counts, key=joy_counts.get)
+        day_name = weekday_names[best_day]
+        if day_name == "воскресенье":
+            preposition = "в"
+            day_form = f"{preposition} {day_name}"
+        else:
+            preposition = "по"
+            day_form = f"{preposition} {day_name}м"
         if joy_counts[best_day] > 0:
-            insights.append(f"ваш самый позитивный день — {weekday_names[best_day]}! Отличное время для важных дел.")
+            insights.append(f"Такса заметила, что ваш самый позитивный день — {day_form}! Отличное время для важных дел.")
     
-    # 3. Анализ активностей (с категориями)
-    activities_moods = {}
+    # 2. Анализ активностей и их влияния на настроение
+    activity_mood_map: Dict[int, Dict[str, int]] = {}
     for story in stories:
         for act in story.activities or []:
             act_id = act.get("activity_id") if isinstance(act, dict) else act
             if act_id:
-                if act_id not in activities_moods:
-                    activities_moods[act_id] = []
+                if act_id not in activity_mood_map:
+                    activity_mood_map[act_id] = {"total": 0, "happy": 0, "sad": 0, "moods": []}
+                activity_mood_map[act_id]["total"] += 1
                 for mood in story.moods or []:
-                    activities_moods[act_id].append(mood)
+                    activity_mood_map[act_id]["moods"].append(mood)
+                    if mood in joy_moods:
+                        activity_mood_map[act_id]["happy"] += 1
+                    elif mood in sadness_moods:
+                        activity_mood_map[act_id]["sad"] += 1
     
     # Загружаем названия активностей
     from models.activity import Activity
+    
+    # Находим самую позитивную активность
     best_activity = None
-    best_activity_score = -1
-    best_activity_name = ""
+    best_activity_score = 0
+    worst_activity = None
+    worst_activity_score = 0
     
-    for act_id, moods in activities_moods.items():
-        if len(moods) >= 3:  # минимум 3 записи
-            joy_count = sum(1 for mood in moods if mood in joy_moods)
-            score = joy_count / len(moods)
-            if score > best_activity_score:
-                best_activity_score = score
-                best_activity_id = act_id
+    for act_id, data in activity_mood_map.items():
+        if data["total"] >= 2:  # минимум 2 записи с этой активностью
+            happy_percent = (data["happy"] / data["total"]) * 100 if data["total"] > 0 else 0
+            sad_percent = (data["sad"] / data["total"]) * 100 if data["total"] > 0 else 0
+            
+            if happy_percent > best_activity_score and happy_percent > 50:
+                best_activity_score = happy_percent
+                best_activity = act_id
+            
+            if sad_percent > worst_activity_score and sad_percent > 60:
+                worst_activity_score = sad_percent
+                worst_activity = act_id
     
-    if best_activity_id and best_activity_score > 0.6:
-        act_result = await db.execute(select(Activity).where(Activity.id == best_activity_id))
+    # Инсайт о позитивной активности
+    if best_activity and best_activity_score > 50:
+        act_result = await db.execute(select(Activity).where(Activity.id == best_activity))
         activity = act_result.scalar_one_or_none()
         if activity:
-            insights.append(f"после «{activity.name}» ваше настроение становится лучше! Отличный повод заниматься этим чаще.")
+            insights.append(f"Такса заметила, что после «{activity.name}» ваше настроение становится лучше! Отличный повод заниматься этим чаще.")
+    
+    # Инсайт о негативной активности
+    if worst_activity and worst_activity_score > 60:
+        act_result = await db.execute(select(Activity).where(Activity.id == worst_activity))
+        activity = act_result.scalar_one_or_none()
+        if activity:
+            insights.append(f"Такса заметила, что вы чувствуете себя печально, когда занимаетесь «{activity.name}». Попробуйте уделять этому меньше времени или ищите позитивные стороны.")
+    
+    # 3. Анализ времени суток
+    hour_moods = {i: [] for i in range(24)}
+    for story in stories:
+        hour = story.created_at.hour
+        for mood in story.moods or []:
+            hour_moods[hour].append(mood)
+    
+    # Находим самое грустное время
+    sad_hour_counts = {h: sum(1 for mood in hour_moods[h] if mood in sadness_moods) for h in range(24)}
+    if max(sad_hour_counts.values()) > 0:
+        worst_hour = max(sad_hour_counts, key=sad_hour_counts.get)
+        time_period = ""
+        if 6 <= worst_hour < 12:
+            time_period = "утро"
+        elif 12 <= worst_hour < 18:
+            time_period = "день"
+        elif 18 <= worst_hour < 24:
+            time_period = "вечер"
+        else:
+            time_period = "ночь"
+        if sad_hour_counts[worst_hour] > 0:
+            insights.append(f"Такса заметила, что чаще всего грустное настроение посещает вас {time_period}м. Попробуйте запланировать приятные занятия на это время.")
     
     # 4. Общая статистика
     total_moods = []
@@ -219,23 +275,24 @@ async def get_insights(
         sadness_percent = sum(1 for mood in total_moods if mood in sadness_moods) / len(total_moods) * 100
         
         if joy_percent > 60:
-            insights.append(f"у вас отличный эмоциональный фон! {joy_percent:.0f}% записей — позитивные.")
+            insights.append(f"Такса заметила, что у вас отличный эмоциональный фон! {joy_percent:.0f}% записей — позитивные. Так держать!")
         elif sadness_percent > 30:
-            insights.append(f"вы справляетесь! Но в {sadness_percent:.0f}% записей вы грустили. Обратите внимание на активности, которые вас радуют.")
+            insights.append(f"Такса заметила, что вы справляетесь! Но в {sadness_percent:.0f}% записей вы грустили. Обратите внимание на активности, которые вас радуют.")
     
-    # 5. Добавим инсайт про регулярность
-    if len(stories) > 0:
-        # Группируем по месяцам
-        months_count = {}
-        for story in stories:
-            month_key = story.created_at.strftime("%Y-%m")
-            months_count[month_key] = months_count.get(month_key, 0) + 1
-        
-        if months_count:
-            avg_per_month = sum(months_count.values()) / len(months_count)
-            if avg_per_month < 4:
-                insights.append(f"вы делаете записи в среднем {avg_per_month:.0f} раз в месяц. Регулярное ведение дневника поможет лучше понимать себя!")
-            elif avg_per_month > 15:
-                insights.append(f"отличная регулярность! Вы делаете записи почти каждый день. Так держать!")
+    # 5. Регулярность ведения дневника
+    if len(stories) >= 7:
+        # Группируем по неделям
+        last_7_days = []
+        for story in stories[-7:]:
+            last_7_days.append(story.created_at.date())
+        unique_days = len(set(last_7_days))
+        if unique_days >= 5:
+            insights.append(f"Такса заметила, что вы ведёте дневник почти каждый день! Отличная регулярность — это помогает лучше понимать себя.")
+        elif unique_days <= 2:
+            insights.append(f"Такса заметила, что вы делаете записи нерегулярно. Попробуйте уделять дневнику хотя бы пару минут каждый день!")
     
-    return {"insights": insights}
+    # Перемешиваем инсайты для разнообразия
+    random.shuffle(insights)
+    
+    # Ограничиваем количество инсайтов до 4
+    return {"insights": insights[:4]}

@@ -168,7 +168,7 @@ export default function Header() {
                   <LogOut className="w-5 h-5 text-white" />
                 </button>
 
-                <Link href="/profile" className="group relative">
+                <Link href="auth/profile" className="group relative">
                   <div className="bg-white/20 hover:bg-white/30 p-2 rounded-xl transition-all duration-300 group-hover:scale-110 backdrop-blur-sm border border-white/20">
                     <User className="w-5 h-5 text-white" />
                   </div>
@@ -202,7 +202,7 @@ export default function Header() {
             {isAuthenticated ? (
               <>
                 <Link
-                  href="/profile"
+                  href="auth/profile"
                   onClick={() => setIsMobileMenuOpen(false)}
                   className="flex items-center justify-between p-3 hover:bg-white/20 rounded-xl"
                 >

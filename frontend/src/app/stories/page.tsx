@@ -22,45 +22,6 @@ import {
   Smile,
   Activity,
   FolderOpen,
-  Laptop,
-  Phone,
-  Book,
-  Tv,
-  Gamepad2,
-  Music,
-  Bed,
-  Footprints,
-  Dumbbell,
-  Bike,
-  Coffee,
-  ChefHat,
-  Utensils,
-  Wine,
-  Truck,
-  Trees,
-  Dog,
-  Mountain,
-  Wind,
-  Users,
-  Smartphone,
-  MessageCircle,
-  PartyPopper,
-  Handshake,
-  Paintbrush,
-  PenTool,
-  Scissors,
-  Bath,
-  Flower,
-  Brain,
-  Brush,
-  Shirt,
-  Leaf,
-  Home,
-  Notebook,
-  CalendarDays,
-  Languages,
-  DollarSign,
-  Newspaper,
 } from "lucide-react";
 
 interface Activity {
@@ -115,59 +76,6 @@ const moodTranslations: Record<string, string> = {
   boredom: "скука",
   annoyance: "раздражение",
   interest: "интерес",
-};
-
-// Маппинг активностей на иконки
-const activityIconMap: Record<string, any> = {
-  "Работа за компьютером": Laptop,
-  Созвон: Phone,
-  Обучение: Book,
-  Чтение: Book,
-  Планирование: Calendar,
-  Сериал: Tv,
-  Книга: Book,
-  Видеоигры: Gamepad2,
-  Музыка: Music,
-  "Просто отдых": Bed,
-  Бег: Footprints,
-  "Тренажёрный зал": Dumbbell,
-  Йога: Activity,
-  Велосипед: Bike,
-  Прогулка: Footprints,
-  Кофе: Coffee,
-  Готовка: ChefHat,
-  "Вкусная еда": Utensils,
-  Алкоголь: Wine,
-  Доставка: Truck,
-  Парк: Trees,
-  "Прогулка с собакой": Dog,
-  Лес: Trees,
-  "Свежий воздух": Wind,
-  "За городом": Mountain,
-  "Встреча с друзьями": Users,
-  "Звонок родным": Smartphone,
-  Переписка: MessageCircle,
-  Тусовка: PartyPopper,
-  "Новое знакомство": Handshake,
-  Рисование: Paintbrush,
-  Фотография: Camera,
-  Писательство: PenTool,
-  Рукоделие: Scissors,
-  Душ: Bath,
-  "Уход за кожей": Flower,
-  Медитация: Brain,
-  "Дневной сон": Bed,
-  Растяжка: Activity,
-  Уборка: Brush,
-  Стирка: Shirt,
-  "Уход за растениями": Leaf,
-  "Готовка на неделю": ChefHat,
-  "Дела по дому": Home,
-  Дневник: Notebook,
-  "Планирование дня": CalendarDays,
-  "Изучение языка": Languages,
-  Финансы: DollarSign,
-  "Полезное чтение": Newspaper,
 };
 
 function PhotoViewer({
@@ -362,19 +270,22 @@ export default function HistoryPage() {
         formData.append("text", editData.text);
       }
 
-      if (editData.photoUrls.length > 0 && editData.photosToDelete.length > 0) {
-        const photosToKeep = editData.photoUrls.filter(
-          (url) => !editData.photosToDelete.includes(url),
-        );
-        if (photosToKeep.length > 0) {
-          formData.append("photos_to_keep", photosToKeep.join(","));
-        }
+      // Сохраняем фото, которые не помечены на удаление
+      const photosToKeep = editData.photoUrls.filter(
+        (url) => !editData.photosToDelete.includes(url),
+      );
+      if (photosToKeep.length > 0) {
+        formData.append("photos_to_keep", photosToKeep.join(","));
+      } else if (editData.photoUrls.length > 0 && photosToKeep.length === 0) {
+        formData.append("photos_to_keep", "");
       }
 
+      // Фото на удаление
       if (editData.photosToDelete.length > 0) {
         formData.append("photos_to_delete", editData.photosToDelete.join(","));
       }
 
+      // Новые фото
       editData.newPhotos.forEach((photo) => {
         formData.append("new_photos", photo);
       });
@@ -487,12 +398,12 @@ export default function HistoryPage() {
 
   return (
     <main className="min-h-screen bg-gradient-to-br from-white via-gray-50 to-gray-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
-      <div className="container mx-auto px-6 py-8">
+      <div className="container mx-auto px-4 sm:px-6 py-6 sm:py-8">
         <BackToHome />
         <div className="max-w-4xl mx-auto">
-          <div className="text-center mb-12">
-            <h1 className="text-4xl sm:text-5xl font-black mb-4 flex items-center justify-center gap-3">
-              <History className="w-10 h-10 text-[#7F1D1D] dark:text-[#f87171]" />
+          <div className="text-center mb-8 sm:mb-12">
+            <h1 className="text-3xl sm:text-4xl font-black mb-4 flex items-center justify-center gap-3">
+              <History className="w-8 h-8 sm:w-10 sm:h-10 text-[#7F1D1D] dark:text-[#f87171]" />
               <span className="bg-gradient-to-r from-[#7F1D1D] to-[#DC2626] bg-clip-text text-transparent">
                 ИСТОРИЯ ЗАПИСЕЙ
               </span>
@@ -501,19 +412,19 @@ export default function HistoryPage() {
 
           {stories.length === 0 ? (
             <div className="text-center py-20">
-              <FolderOpen className="w-24 h-24 mx-auto mb-6 text-gray-400 dark:text-gray-500" />
-              <h3 className="text-2xl font-bold text-[#7F1D1D] dark:text-white mb-4">
+              <FolderOpen className="w-20 h-20 sm:w-24 sm:h-24 mx-auto mb-6 text-gray-400 dark:text-gray-500" />
+              <h3 className="text-xl sm:text-2xl font-bold text-[#7F1D1D] dark:text-white mb-4">
                 Записей пока нет
               </h3>
               <Link href="/stories/create">
-                <button className="bg-gradient-to-r from-[#7F1D1D] to-[#DC2626] hover:from-[#991B1B] hover:to-[#ef4444] text-white px-10 py-5 rounded-2xl font-bold text-xl shadow-2xl flex items-center gap-2 mx-auto">
-                  <Sparkles className="w-6 h-6" />
+                <button className="bg-gradient-to-r from-[#7F1D1D] to-[#DC2626] hover:from-[#991B1B] hover:to-[#ef4444] text-white px-8 py-4 sm:px-10 sm:py-5 rounded-2xl font-bold text-lg sm:text-xl shadow-2xl flex items-center gap-2 mx-auto">
+                  <Sparkles className="w-5 h-5 sm:w-6 sm:h-6" />
                   Создать запись
                 </button>
               </Link>
             </div>
           ) : (
-            <div className="space-y-8">
+            <div className="space-y-6 sm:space-y-8">
               {stories.map((story) => {
                 const photoUrls = getNormalizedPhotoUrls(story);
                 const isEditing = editingId === story.id;
@@ -521,40 +432,41 @@ export default function HistoryPage() {
                 return (
                   <div
                     key={story.id}
-                    className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-3xl p-8 shadow-2xl border border-gray-100 dark:border-gray-700"
+                    className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-2xl sm:rounded-3xl p-5 sm:p-8 shadow-2xl border border-gray-100 dark:border-gray-700"
                   >
-                    <div className="flex flex-wrap justify-between items-start gap-4 mb-6">
-                      <div className="flex items-center gap-4">
-                        <div className="w-12 h-12 rounded-full bg-gradient-to-r from-[#7F1D1D] to-[#DC2626] flex items-center justify-center">
-                          <NotebookPen className="w-6 h-6 text-white" />
+                    {/* Шапка */}
+                    <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4 mb-6">
+                      <div className="flex items-center gap-3 sm:gap-4">
+                        <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-gradient-to-r from-[#7F1D1D] to-[#DC2626] flex items-center justify-center flex-shrink-0">
+                          <NotebookPen className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
                         </div>
                         <div>
-                          <h3 className="text-xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
-                            <Calendar className="w-4 h-4 text-[#7F1D1D] dark:text-[#f87171]" />
+                          <h3 className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
+                            <Calendar className="w-4 h-4" />
                             {formatDate(story.created_at)}
                           </h3>
-                          <p className="text-gray-600 dark:text-gray-400 flex items-center gap-1">
+                          <p className="text-sm text-gray-600 dark:text-gray-400 flex items-center gap-1">
                             <Clock className="w-3 h-3" />
                             {formatTime(story.created_at)}
                           </p>
                         </div>
                       </div>
 
-                      <div className="flex gap-3">
+                      <div className="flex flex-wrap gap-2">
                         {isEditing ? (
                           <>
                             <button
                               onClick={() => saveEdit(story.id)}
-                              className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-[#7F1D1D] to-[#DC2626] text-white rounded-xl font-bold hover:shadow-lg transition-shadow"
+                              className="flex items-center gap-1 sm:gap-2 px-3 py-1.5 sm:px-4 sm:py-2 bg-gradient-to-r from-[#7F1D1D] to-[#DC2626] text-white rounded-xl font-bold hover:shadow-lg transition-shadow text-sm sm:text-base"
                             >
-                              <Save className="w-4 h-4" />
+                              <Save className="w-3 h-3 sm:w-4 sm:h-4" />
                               Сохранить
                             </button>
                             <button
                               onClick={cancelEditing}
-                              className="flex items-center gap-2 px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-white rounded-xl font-bold hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
+                              className="flex items-center gap-1 sm:gap-2 px-3 py-1.5 sm:px-4 sm:py-2 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-white rounded-xl font-bold hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors text-sm sm:text-base"
                             >
-                              <X className="w-4 h-4" />
+                              <X className="w-3 h-3 sm:w-4 sm:h-4" />
                               Отмена
                             </button>
                           </>
@@ -562,16 +474,16 @@ export default function HistoryPage() {
                           <>
                             <button
                               onClick={() => startEditing(story)}
-                              className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-[#7F1D1D] to-[#DC2626] text-white rounded-xl font-bold hover:shadow-lg transition-shadow"
+                              className="flex items-center gap-1 sm:gap-2 px-3 py-1.5 sm:px-4 sm:py-2 bg-gradient-to-r from-[#7F1D1D] to-[#DC2626] text-white rounded-xl font-bold hover:shadow-lg transition-shadow text-sm sm:text-base"
                             >
-                              <Edit className="w-4 h-4" />
+                              <Edit className="w-3 h-3 sm:w-4 sm:h-4" />
                               Редактировать
                             </button>
                             <button
                               onClick={() => handleDelete(story.id)}
-                              className="flex items-center gap-2 px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-white rounded-xl font-bold hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
+                              className="flex items-center gap-1 sm:gap-2 px-3 py-1.5 sm:px-4 sm:py-2 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-white rounded-xl font-bold hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors text-sm sm:text-base"
                             >
-                              <Trash2 className="w-4 h-4" />
+                              <Trash2 className="w-3 h-3 sm:w-4 sm:h-4" />
                               Удалить
                             </button>
                           </>
@@ -579,94 +491,120 @@ export default function HistoryPage() {
                       </div>
                     </div>
 
-                    <div className="mb-6">
-                      <h4 className="text-sm font-medium text-[#7F1D1D] dark:text-gray-400 mb-3 flex items-center gap-2">
-                        <Smile className="w-4 h-4" />
+                    {/* Эмоции */}
+                    <div className="mb-5 sm:mb-6">
+                      <h4 className="text-xs sm:text-sm font-medium text-[#7F1D1D] dark:text-gray-400 mb-2 sm:mb-3 flex items-center gap-2">
+                        <Smile className="w-3 h-3 sm:w-4 sm:h-4" />
                         Эмоции:
                       </h4>
-                      <div className="flex flex-wrap gap-3">
-                        {story.moods.map((mood, i) => {
-                          const russian =
-                            moodTranslations[mood.toLowerCase()] || mood;
-
-                          return (
-                            <span
-                              key={i}
-                              className="px-4 py-2 rounded-full bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-300 font-medium text-sm"
-                            >
-                              {russian}
-                            </span>
-                          );
-                        })}
+                      <div className="flex flex-wrap gap-2">
+                        {story.moods.map((mood, i) => (
+                          <span
+                            key={i}
+                            className="px-2 py-1 sm:px-3 sm:py-1.5 rounded-full bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-300 font-medium text-xs sm:text-sm"
+                          >
+                            {moodTranslations[mood.toLowerCase()] || mood}
+                          </span>
+                        ))}
                       </div>
                     </div>
 
-                    <div className="mb-6">
-                      <h4 className="text-sm font-medium text-[#7F1D1D] dark:text-gray-400 mb-3 flex items-center gap-2">
-                        <Activity className="w-4 h-4" />
+                    {/* Активности */}
+                    <div className="mb-5 sm:mb-6">
+                      <h4 className="text-xs sm:text-sm font-medium text-[#7F1D1D] dark:text-gray-400 mb-2 sm:mb-3 flex items-center gap-2">
+                        <Activity className="w-3 h-3 sm:w-4 sm:h-4" />
                         Активности:
                       </h4>
-                      <div className="flex flex-wrap gap-4">
+                      <div className="flex flex-wrap gap-2">
                         {story.activities.map((act, i) => {
                           const name =
                             activityMap[act.activity_id] ||
                             `ID ${act.activity_id}`;
-                          const IconComponent =
-                            activityIconMap[name] || Activity;
                           return (
                             <div
                               key={i}
-                              className="flex items-center gap-3 bg-gray-50 dark:bg-gray-700/50 px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-600"
+                              className="px-2 py-1 sm:px-3 sm:py-1.5 rounded-full bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 text-xs sm:text-sm"
                             >
-                              <IconComponent className="w-5 h-5 text-gray-600 dark:text-gray-300" />
-                              <span className="font-medium dark:text-white">
-                                {name}
-                              </span>
+                              {name}
                             </div>
                           );
                         })}
                       </div>
                     </div>
 
+                    {/* Заметки */}
                     {isEditing && editData ? (
-                      <div className="mb-6">
-                        <h4 className="text-sm font-medium text-[#7F1D1D] dark:text-gray-400 mb-3">
+                      <div className="mb-5 sm:mb-6">
+                        <h4 className="text-xs sm:text-sm font-medium text-[#7F1D1D] dark:text-gray-400 mb-2 sm:mb-3">
                           Заметки:
                         </h4>
                         <textarea
                           value={editData.text}
                           onChange={(e) => handleTextChange(e.target.value)}
                           placeholder="Опишите свои мысли..."
-                          className="w-full h-48 p-4 rounded-2xl border-2 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-800 dark:text-white resize-none focus:border-[#7F1D1D] outline-none"
+                          className="w-full h-32 sm:h-40 p-3 sm:p-4 rounded-xl sm:rounded-2xl border-2 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-800 dark:text-white resize-none focus:border-[#7F1D1D] outline-none text-sm"
                         />
                       </div>
                     ) : story.text ? (
-                      <div className="mb-6">
-                        <h4 className="text-sm font-medium text-[#7F1D1D] dark:text-gray-400 mb-3">
+                      <div className="mb-5 sm:mb-6">
+                        <h4 className="text-xs sm:text-sm font-medium text-[#7F1D1D] dark:text-gray-400 mb-2 sm:mb-3">
                           Заметки:
                         </h4>
+                        <p className="text-gray-800 dark:text-gray-300 leading-relaxed text-sm bg-gray-50 dark:bg-gray-700/30 p-3 sm:p-4 rounded-xl">
+                          {story.text}
+                        </p>
                       </div>
                     ) : null}
 
-                    {isEditing && editData ? (
-                      <div className="space-y-6">
-                        {editData.photoUrls.length > 0 && (
+                    {/* Фотографии в режиме просмотра */}
+                    {!isEditing && photoUrls.length > 0 && (
+                      <div>
+                        <h4 className="text-xs sm:text-sm font-medium text-[#7F1D1D] dark:text-gray-400 mb-2 sm:mb-3">
+                          Фотографии:
+                        </h4>
+                        <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 sm:gap-3">
+                          {photoUrls.map((url, i) => (
+                            <div
+                              key={i}
+                              className="relative aspect-square rounded-xl overflow-hidden shadow-md border border-gray-200 dark:border-gray-700 group cursor-pointer"
+                              onClick={() => openPhotoViewer(story, i)}
+                            >
+                              <Image
+                                src={url}
+                                alt={`Фото ${i + 1}`}
+                                fill
+                                className="object-cover group-hover:scale-105 transition-transform duration-300"
+                                unoptimized
+                              />
+                              <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-all duration-300 flex items-center justify-center">
+                                <Maximize2 className="w-5 h-5 sm:w-6 sm:h-6 text-white opacity-0 group-hover:opacity-100 transition-all" />
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Режим редактирования фото */}
+                    {isEditing && editData && (
+                      <div className="space-y-5 sm:space-y-6 mt-5 sm:mt-6 pt-5 sm:pt-6 border-t border-gray-200 dark:border-gray-700">
+                        {editData.photoUrls.filter(
+                          (url) => !editData.photosToDelete.includes(url),
+                        ).length > 0 && (
                           <div>
-                            <h4 className="text-sm font-medium text-[#7F1D1D] dark:text-gray-400 mb-3">
-                              Фотографии (нажмите для удаления):
+                            <h4 className="text-xs sm:text-sm font-medium text-[#7F1D1D] dark:text-gray-400 mb-2 sm:mb-3">
+                              Текущие фото (нажмите для удаления):
                             </h4>
-                            <div className="grid grid-cols-3 gap-4">
-                              {editData.photoUrls.map((url, i) => {
-                                const isMarkedForDelete =
-                                  editData.photosToDelete.includes(url);
-                                return (
+                            <div className="grid grid-cols-3 gap-2 sm:gap-3">
+                              {editData.photoUrls
+                                .filter(
+                                  (url) =>
+                                    !editData.photosToDelete.includes(url),
+                                )
+                                .map((url, i) => (
                                   <div key={i} className="relative">
                                     <div
-                                      className={`relative aspect-square rounded-2xl overflow-hidden cursor-pointer border-2 transition-all ${
-                                        isMarkedForDelete
-                                          ? "border-red-600 opacity-60"
-                                          : "border-transparent hover:border-[#7F1D1D]"
-                                      }`}
+                                      className="relative aspect-square rounded-xl overflow-hidden cursor-pointer border-2 border-transparent hover:border-red-500 transition-all"
                                       onClick={() => togglePhotoDelete(url)}
                                     >
                                       <Image
@@ -676,26 +614,63 @@ export default function HistoryPage() {
                                         className="object-cover"
                                         unoptimized
                                       />
-                                      <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
-                                        {isMarkedForDelete ? (
-                                          <Undo2 className="w-8 h-8 text-white" />
-                                        ) : (
-                                          <Trash2 className="w-8 h-8 text-white" />
-                                        )}
+                                      <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 hover:opacity-100 transition">
+                                        <Trash2 className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
                                       </div>
                                     </div>
+                                    <button
+                                      onClick={() => togglePhotoDelete(url)}
+                                      className="absolute -top-2 -right-2 bg-red-600 text-white w-5 h-5 rounded-full flex items-center justify-center text-xs"
+                                    >
+                                      ✕
+                                    </button>
                                   </div>
-                                );
-                              })}
+                                ))}
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Фото, помеченные на удаление */}
+                        {editData.photosToDelete.length > 0 && (
+                          <div>
+                            <h4 className="text-xs sm:text-sm font-medium text-red-600 dark:text-red-400 mb-2 sm:mb-3">
+                              Будут удалены (нажмите для восстановления):
+                            </h4>
+                            <div className="grid grid-cols-3 gap-2 sm:gap-3">
+                              {editData.photosToDelete.map((url, i) => (
+                                <div key={i} className="relative">
+                                  <div
+                                    className="relative aspect-square rounded-xl overflow-hidden cursor-pointer border-2 border-red-500 opacity-60"
+                                    onClick={() => togglePhotoDelete(url)}
+                                  >
+                                    <Image
+                                      src={url}
+                                      alt={`Фото для удаления ${i + 1}`}
+                                      fill
+                                      className="object-cover"
+                                      unoptimized
+                                    />
+                                    <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
+                                      <Undo2 className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
+                                    </div>
+                                  </div>
+                                  <button
+                                    onClick={() => togglePhotoDelete(url)}
+                                    className="absolute -top-2 -right-2 bg-green-600 text-white w-5 h-5 rounded-full flex items-center justify-center text-xs"
+                                  >
+                                    ↺
+                                  </button>
+                                </div>
+                              ))}
                             </div>
                           </div>
                         )}
 
                         <div>
-                          <h4 className="text-sm font-medium text-[#7F1D1D] dark:text-gray-400 mb-3">
+                          <h4 className="text-xs sm:text-sm font-medium text-[#7F1D1D] dark:text-gray-400 mb-2 sm:mb-3">
                             Добавить новые фото:
                           </h4>
-                          <div className="border-3 border-dashed border-gray-300 dark:border-gray-600 rounded-2xl p-8 text-center hover:border-[#7F1D1D] transition-colors">
+                          <div className="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-xl p-6 text-center hover:border-[#7F1D1D] transition-colors">
                             <input
                               type="file"
                               multiple
@@ -712,35 +687,33 @@ export default function HistoryPage() {
                               htmlFor={`file-input-${story.id}`}
                               className="cursor-pointer"
                             >
-                              <Camera className="w-12 h-12 mx-auto mb-4 text-gray-400" />
-                              <p className="text-lg font-bold dark:text-white">
+                              <Camera className="w-8 h-8 sm:w-10 sm:h-10 mx-auto mb-2 text-gray-400" />
+                              <p className="text-sm font-medium dark:text-white">
                                 Нажмите для загрузки фото
                               </p>
                             </label>
                           </div>
 
                           {editData.newPhotos.length > 0 && (
-                            <div className="mt-6">
-                              <p className="text-sm font-medium text-[#7F1D1D] dark:text-gray-400 mb-3">
+                            <div className="mt-4">
+                              <p className="text-sm font-medium text-[#7F1D1D] dark:text-gray-400 mb-2">
                                 Новые фото:
                               </p>
-                              <div className="grid grid-cols-3 gap-4">
+                              <div className="grid grid-cols-3 gap-2 sm:gap-3">
                                 {editData.newPhotos.map((file, i) => (
                                   <div key={i} className="relative">
-                                    <div className="relative aspect-square rounded-2xl overflow-hidden bg-gray-100 dark:bg-gray-700">
-                                      {file.type.startsWith("image/") && (
-                                        <img
-                                          src={URL.createObjectURL(file)}
-                                          alt={`Новое фото ${i + 1}`}
-                                          className="w-full h-full object-cover"
-                                        />
-                                      )}
+                                    <div className="relative aspect-square rounded-xl overflow-hidden bg-gray-100 dark:bg-gray-700">
+                                      <img
+                                        src={URL.createObjectURL(file)}
+                                        alt={`Новое фото ${i + 1}`}
+                                        className="w-full h-full object-cover"
+                                      />
                                     </div>
                                     <button
                                       onClick={() => removeNewPhoto(i)}
-                                      className="absolute -top-2 -right-2 bg-[#7F1D1D] text-white w-6 h-6 rounded-full flex items-center justify-center"
+                                      className="absolute -top-2 -right-2 bg-red-600 text-white w-5 h-5 rounded-full flex items-center justify-center text-xs"
                                     >
-                                      <X className="w-3 h-3" />
+                                      ✕
                                     </button>
                                   </div>
                                 ))}
@@ -749,34 +722,6 @@ export default function HistoryPage() {
                           )}
                         </div>
                       </div>
-                    ) : (
-                      photoUrls.length > 0 && (
-                        <div>
-                          <h4 className="text-sm font-medium text-[#7F1D1D] dark:text-gray-400 mb-4">
-                            Фотографии:
-                          </h4>
-                          <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                            {photoUrls.map((url, i) => (
-                              <div
-                                key={i}
-                                className="relative aspect-square rounded-2xl overflow-hidden shadow-xl border border-gray-200 dark:border-gray-700 group cursor-pointer"
-                                onClick={() => openPhotoViewer(story, i)}
-                              >
-                                <Image
-                                  src={url}
-                                  alt={`Фото ${i + 1}`}
-                                  fill
-                                  className="object-cover group-hover:scale-110 transition-transform duration-300"
-                                  unoptimized
-                                />
-                                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-all duration-300 flex items-center justify-center">
-                                  <Maximize2 className="w-8 h-8 text-white opacity-0 group-hover:opacity-100 transform translate-y-4 group-hover:translate-y-0 transition-all" />
-                                </div>
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-                      )
                     )}
                   </div>
                 );

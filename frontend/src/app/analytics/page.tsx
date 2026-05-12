@@ -535,26 +535,6 @@ export default function AnalyticsPage() {
                 <ChartWrapper>
                   <ResponsiveContainer width="100%" height={300}>
                     <LineChart data={moodTimelineData}>
-                      <defs>
-                        <linearGradient
-                          id="areaGradient"
-                          x1="0"
-                          y1="0"
-                          x2="0"
-                          y2="1"
-                        >
-                          <stop
-                            offset="5%"
-                            stopColor="#DC2626"
-                            stopOpacity={0.3}
-                          />
-                          <stop
-                            offset="95%"
-                            stopColor="#DC2626"
-                            stopOpacity={0}
-                          />
-                        </linearGradient>
-                      </defs>
                       <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
                       <XAxis dataKey="date" stroke="#9CA3AF" />
                       <YAxis domain={[0, 10]} stroke="#9CA3AF" />
@@ -568,14 +548,23 @@ export default function AnalyticsPage() {
                         }}
                       />
                       <Legend />
-                      <Area
+                      <Line
                         type="monotone"
                         dataKey="moodScore"
+                        name="Уровень настроения"
                         stroke="#DC2626"
                         strokeWidth={3}
-                        fill="url(#areaGradient)"
                         dot={{ r: 4, fill: "#DC2626", strokeWidth: 2 }}
                         activeDot={{ r: 6 }}
+                      />
+                      {/* Добавим ещё линию с количеством записей */}
+                      <Line
+                        type="monotone"
+                        dataKey="moodCount"
+                        name="Количество записей"
+                        stroke="#3B82F6"
+                        strokeWidth={2}
+                        dot={{ r: 3, fill: "#3B82F6" }}
                       />
                     </LineChart>
                   </ResponsiveContainer>

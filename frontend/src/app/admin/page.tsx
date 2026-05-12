@@ -174,7 +174,7 @@ export default function AdminDashboard() {
           </div>
         </Link>
 
-        <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-2xl p-5 sm:p-6 shadow-xl border border-gray-100 dark:border-gray-700 opacity-50">
+        {/* <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-2xl p-5 sm:p-6 shadow-xl border border-gray-100 dark:border-gray-700 opacity-50">
           <div className="flex items-center gap-3 sm:gap-4 mb-3">
             <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-gray-400 flex items-center justify-center">
               <BarChart3 className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
@@ -186,7 +186,7 @@ export default function AdminDashboard() {
           <p className="text-sm sm:text-base text-gray-600 dark:text-gray-300">
             Управление активностями — в разработке
           </p>
-        </div>
+        </div> */}
       </div>
     </div>
   );
